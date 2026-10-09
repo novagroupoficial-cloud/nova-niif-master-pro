@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA NIIF Master Pro · Consultor NIIF con inteligencia artificial</title>
+  <meta name="description" content="Consultor NIIF con inteligencia artificial para contadores: analiza tu caso, cita la norma y el párrafo, calcula paso a paso y propone los asientos contables. NIIF completas y NIIF para las PYMES.">
+  <meta name="theme-color" content="#0B1F2A">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <meta property="og:title" content="NOVA NIIF Master Pro · Consultor NIIF con IA">
+  <meta property="og:description" content="Pregunta como contador. Recibe la norma, el cálculo y el asiento.">
+  <meta property="og:image" content="assets/app-consultor.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&family=Schibsted+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0B1F2A; --ink-2:#12303D; --ink-3:#1B4253;
+      --paper:#F4F6F5; --paper-2:#E9EEEC; --white:#FFFFFF;
+      --ledger:#0F6B4F; --ledger-soft:#DCEBE4; --rule:#CFDFD8;
+      --brass:#B8893B; --brass-soft:#F3E7D1;
+      --text:#13232C; --muted:#5B6B73; --line:#D7E0DC;
+      --display:"Schibsted Grotesk",system-ui,sans-serif;
+      --body:"Instrument Sans",system-ui,sans-serif;
+      --mono:"IBM Plex Mono",ui-monospace,monospace;
+      --radius:14px; --wrap:1200px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--paper);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    img{max-width:100%;height:auto;display:block}
+    a{color:inherit}
+    button{font:inherit}
+    :focus-visible{outline:3px solid var(--brass);outline-offset:3px;border-radius:6px}
+    .wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+    .mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
+    .eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ledger);font-weight:600}
+    h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;margin:0;color:inherit}
+    h2{font-size:clamp(30px,4vw,48px);line-height:1.06;font-weight:800}
+    h3{font-size:21px;line-height:1.25;font-weight:700}
+    .lead{font-size:19px;color:var(--muted);max-width:60ch}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-brass{background:var(--brass);color:#1A1407}
+    .btn-brass:hover{background:#C99A4B}
+    .btn-ghost{border-color:rgba(255,255,255,.28);color:#fff}
+    .btn-ghost:hover{border-color:#fff}
+    .btn-ink{background:var(--ink);color:#fff}
+    .btn-ink:hover{background:var(--ink-2)}
+    .btn-line{border-color:var(--line);color:var(--text);background:#fff}
+    .btn-line:hover{border-color:var(--text)}
+    .arrow{font-family:var(--mono);font-weight:500}
+
+    /* ---------- Navegación ---------- */
+    .nav{position:sticky;top:0;z-index:50;background:rgba(11,31,42,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08);color:#fff}
+    .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .brand-mark{font-family:var(--display);font-weight:900;letter-spacing:.18em;font-size:15px;padding:7px 9px 7px 11px;border:1.5px solid var(--brass);color:var(--brass);border-radius:6px}
+    .brand-name{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em}
+    .brand-name span{color:#9FB5BE;font-weight:600}
+    .nav-links{display:flex;gap:28px;align-items:center}
+    .nav-links a{text-decoration:none;font-size:15px;color:#C9D6DB;font-weight:500}
+    .nav-links a:hover{color:#fff}
+    .nav-cta{display:flex;gap:10px;align-items:center}
+    .nav-cta .btn{padding:10px 16px;font-size:15px}
+    .menu-btn{display:none;background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:8px 12px;font-weight:600}
+
+    /* ---------- Hero ---------- */
+    .hero{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+    .hero::before{content:"";position:absolute;inset:0;background:
+      repeating-linear-gradient(180deg,transparent 0 39px,rgba(159,181,190,.07) 39px 40px);
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 45%,#000);mask-image:linear-gradient(90deg,transparent,#000 45%,#000);pointer-events:none}
+    .hero .wrap{position:relative;display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center;padding-top:76px;padding-bottom:96px}
+    .hero .eyebrow{color:var(--brass)}
+    .hero h1{font-size:clamp(38px,4.5vw,60px);line-height:1.02;font-weight:900;margin-top:18px;letter-spacing:-.03em;text-wrap:balance}
+    .hero h1 em{font-style:normal;color:var(--brass)}
+    .hero .lead{color:#B9C9CF;margin-top:22px}
+    .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+    .hero-note{margin-top:18px;font-size:14px;color:#8FA6AF}
+    .hero-note b{color:#D6E1E5;font-weight:600}
+
+    /* Asiento vivo (firma de la página) */
+    .ledger{background:var(--white);color:var(--text);border-radius:16px;box-shadow:0 40px 90px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06);overflow:hidden}
+    .ledger-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--paper)}
+    .ledger-top .label{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .ledger-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px 0}
+    .ledger-tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
+    .ledger-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+    .ledger-tab .mono{font-size:12px;opacity:.75;margin-left:4px}
+    .ledger-body{padding:8px 18px 18px}
+    .step{display:grid;grid-template-columns:92px 1fr;gap:14px;padding:12px 0;border-bottom:1px dashed var(--rule);opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .45s ease}
+    .step.on{opacity:1;transform:none}
+    .step:last-child{border-bottom:0}
+    .step-k{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ledger);font-weight:600;padding-top:3px}
+    .step-v{font-size:15px;line-height:1.55}
+    .seals{display:flex;gap:8px;flex-wrap:wrap}
+    .seal{font-family:var(--mono);font-size:13px;font-weight:600;color:#6B4E1C;background:var(--brass-soft);border:1px solid #E1C99C;border-radius:6px;padding:3px 9px;transform:scale(.6) rotate(-6deg);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s}
+    .step.on .seal{transform:none;opacity:1}
+    .calc{font-family:var(--mono);font-size:13.5px;line-height:1.75;color:var(--text)}
+    .calc div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .calc b{font-weight:600;color:var(--ledger)}
+    .journal{width:100%;border-collapse:collapse;font-size:14px}
+    .journal th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:0 0 6px;border-bottom:1.5px solid var(--text)}
+    .journal th.n,.journal td.n{text-align:right;width:92px;font-family:var(--mono);font-feature-settings:"tnum" 1}
+    .journal td{padding:6px 0;border-bottom:1px solid var(--rule)}
+    .journal td.n{border-left:1px solid var(--rule)}
+    .journal tr.credit td:first-child{padding-left:22px}
+    .conclusion{font-weight:600}
+    .conclusion b{color:var(--ledger)}
+    .ledger-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);background:var(--paper)}
+    .ledger-foot a{color:var(--ledger);font-weight:700;text-decoration:none}
+
+    /* ---------- Cobertura ---------- */
+    .cover{background:var(--paper-2);border-bottom:1px solid var(--line)}
+    .cover .wrap{display:flex;flex-wrap:wrap;gap:12px 34px;align-items:center;justify-content:center;padding-top:22px;padding-bottom:22px}
+    .cover span{font-family:var(--mono);font-size:14px;color:var(--muted);font-weight:500}
+    .cover span::before{content:"§ ";color:var(--brass)}
+
+    /* ---------- Secciones ---------- */
+    section{scroll-margin-top:72px}
+    .sec{padding:110px 0}
+    .sec-head{max-width:760px}
+    .sec-head p{margin-top:16px}
+    .split{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
+    .split.rev{grid-template-columns:1.1fr .9fr}
+
+    .anatomy{list-style:none;margin:30px 0 0;padding:0;counter-reset:a}
+    .anatomy li{counter-increment:a;display:grid;grid-template-columns:44px 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
+    .anatomy li::before{content:counter(a);font-family:var(--mono);font-weight:600;color:var(--brass);font-size:15px;padding-top:2px}
+    .anatomy b{display:block;font-family:var(--display);font-size:18px;letter-spacing:-.01em}
+    .anatomy span{color:var(--muted);font-size:15.5px}
+
+    .shot{position:relative}
+    .frame{background:#fff;border-radius:14px;border:1px solid var(--line);box-shadow:0 30px 70px rgba(11,31,42,.18);overflow:hidden}
+    .frame-bar{display:flex;gap:6px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--paper)}
+    .frame-bar i{width:10px;height:10px;border-radius:50%;background:#D3DCD8}
+    .frame-bar .url{margin-left:10px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+    .frame-crop{max-height:600px;overflow:hidden;position:relative}
+    .frame img{width:100%}
+    .frame-crop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(transparent,#fff)}
+    .phone{position:absolute;right:-28px;bottom:-60px;width:210px;border-radius:30px;padding:8px;background:var(--ink);box-shadow:0 30px 60px rgba(11,31,42,.35)}
+    .phone img{width:100%;height:auto;border-radius:23px;aspect-ratio:9/16;object-fit:cover;object-position:top}
+
+    /* Fotos con tratamiento editorial */
+    .photo{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--ink-2)}
+    .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06) brightness(.95)}
+    .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(15,107,79,.42),rgba(11,31,42,.62));mix-blend-mode:multiply}
+    .photo .credit{position:absolute;right:10px;bottom:8px;z-index:2;font-size:11px;color:rgba(255,255,255,.7);font-family:var(--mono)}
+
+    /* Novedades: línea de tiempo */
+    .updates{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+    .updates .lead{color:#B9C9CF}
+    .updates .eyebrow{color:var(--brass)}
+    .updates-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;align-items:start}
+    .updates .photo{height:100%;min-height:520px}
+    .timeline{margin-top:36px;border-left:1.5px solid rgba(184,137,59,.5);padding-left:28px}
+    .year{position:relative;margin-bottom:30px}
+    .year::before{content:"";position:absolute;left:-35px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 5px rgba(184,137,59,.18)}
+    .year h3{font-family:var(--mono);font-size:15px;letter-spacing:.08em;color:var(--brass);font-weight:600}
+    .year ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:10px}
+    .year li{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:12px 14px}
+    .year li b{font-family:var(--display);font-size:16.5px;display:block}
+    .year li span{font-size:14.5px;color:#9FB5BE}
+    .src{margin-top:8px;font-size:13px;color:#8FA6AF}
+
+    /* Audiencia */
+    .aud{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+    .aud .photo{aspect-ratio:4/3.4}
+    .roles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}
+    .role{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+    .role b{font-family:var(--display);font-size:17px;display:block}
+    .role span{font-size:14.5px;color:var(--muted)}
+
+    /* Pasos */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;counter-reset:s}
+    .stp{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;position:relative}
+    .stp::before{content:"Paso " counter(s);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);font-weight:600}
+    .stp h3{margin-top:10px}
+    .stp p{color:var(--muted);font-size:15.5px;margin:8px 0 0}
+
+    /* Planes */
+    .plans-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:20px}
+    .region{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px}
+    .region button{border:0;background:none;padding:9px 16px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
+    .region button[aria-pressed="true"]{background:var(--ink);color:#fff}
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;align-items:stretch}
+    .plan{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column}
+    .plan.main{border:2px solid var(--ink);box-shadow:0 24px 60px rgba(11,31,42,.14);position:relative}
+    .plan.main .tag{position:absolute;top:-12px;left:24px;background:var(--brass);color:#1A1407;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:6px}
+    .plan .name{font-family:var(--display);font-weight:800;font-size:20px}
+    .price{display:flex;align-items:baseline;gap:6px;margin-top:14px}
+    .price b{font-family:var(--display);font-size:46px;font-weight:900;letter-spacing:-.03em;line-height:1}
+    .price span{color:var(--muted);font-weight:600}
+    .tax{font-size:13.5px;color:var(--muted);margin-top:6px;min-height:20px}
+    .plan ul{list-style:none;padding:0;margin:22px 0 26px;display:grid;gap:9px;flex:1;align-content:start}
+    .plan li{display:grid;grid-template-columns:20px 1fr;gap:8px;font-size:15.5px}
+    .plan li::before{content:"✓";color:var(--ledger);font-weight:700}
+    .plan .btn{justify-content:center;width:100%}
+    .fine{margin-top:22px;font-size:13.5px;color:var(--muted);max-width:90ch}
+
+    /* FAQ */
+    .faq{max-width:860px;margin-top:36px}
+    .faq details{border-top:1px solid var(--line);padding:4px 0}
+    .faq details:last-child{border-bottom:1px solid var(--line)}
+    .faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;padding:18px 0;font-family:var(--display);font-weight:700;font-size:19px}
+    .faq summary::-webkit-details-marker{display:none}
+    .faq summary::after{content:"+";font-family:var(--mono);color:var(--brass);font-size:22px;line-height:1}
+    .faq details[open] summary::after{content:"−"}
+    .faq p{margin:0 0 20px;color:var(--muted);max-width:70ch}
+
+    /* Cierre */
+    .closing{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+    .closing .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;padding-top:96px;padding-bottom:96px}
+    .closing h2{font-size:clamp(34px,4.4vw,56px)}
+    .closing .lead{color:#B9C9CF;margin-top:16px}
+    .closing .photo{aspect-ratio:5/4}
+
+    footer{background:#081822;color:#9FB5BE;font-size:14.5px}
+    footer .wrap{padding-top:44px;padding-bottom:44px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px}
+    footer h4{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:0 0 12px;font-weight:600}
+    footer a{text-decoration:none;color:#C9D6DB}
+    footer a:hover{color:#fff}
+    footer ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+    .legal{border-top:1px solid rgba(255,255,255,.08)}
+    .legal .wrap{display:block;padding-top:18px;padding-bottom:26px;font-size:12.5px;color:#6F8790}
+
+    /* Ventana de pago */
+    .modal{position:fixed;inset:0;z-index:100;background:rgba(8,24,34,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+    .modal-card{background:#fff;color:var(--text);border-radius:18px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:26px}
+    .modal-head{display:flex;justify-content:space-between;align-items:start;gap:12px}
+    .modal-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:18px}
+    .pay{border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px}
+    .pay h4{margin:0;font-family:var(--display);font-size:17px}
+    .pay p{margin:6px 0 0;font-size:14.5px;color:var(--muted)}
+    .pay table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14.5px}
+    .pay td{padding:7px 0;border-bottom:1px solid var(--line)}
+    .pay td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
+    .pay tr:last-child td{border-bottom:0;font-weight:700}
+    .pay .btn{width:100%;justify-content:center;margin-top:14px}
+    .btn-wa{background:var(--ledger);color:#fff}
+    .btn-wa:hover{background:#0C5A42}
+
+    /* Revelado al hacer scroll */
+    .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+    .rv.in{opacity:1;transform:none}
+
+    @media (max-width:1020px){
+      .hero .wrap,.split,.split.rev,.updates-grid,.aud,.closing .wrap{grid-template-columns:1fr}
+      .hero .wrap{padding-top:52px;padding-bottom:64px;gap:40px}
+      .updates .photo{min-height:300px}
+      .phone{display:none}
+      .split.rev .shot{order:2}
+      .nav-links{display:none}
+      .menu-btn{display:inline-block}
+      .nav-links.open{display:flex;position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;background:var(--ink);padding:8px 24px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+      .nav-links.open a{padding:12px 0;width:100%;border-bottom:1px solid rgba(255,255,255,.06)}
+    }
+    @media (max-width:760px){
+      body{font-size:16px}
+      .wrap{padding:0 16px}
+      .sec{padding:76px 0}
+      .plans,.steps,.roles{grid-template-columns:1fr}
+      footer .wrap{grid-template-columns:1fr}
+      .nav-cta .btn-ghost{display:none}
+      .step{grid-template-columns:1fr;gap:4px}
+      .calc div{white-space:normal}
+      .frame-crop{max-height:440px}
+      .lead{font-size:17px}
+    }
+    @media (max-width:520px){
+      .brand-name span{display:none}
+      .nav .wrap{gap:10px}
+      .nav-cta .btn{padding:9px 12px;font-size:14px}
+      .menu-btn{padding:8px 10px;font-size:14px}
+    }
+    .btn,.brand-name{white-space:nowrap}
+    @media (prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{transition:none!important;animation:none!important}
+      .rv,.step{opacity:1;transform:none}
+      .seal{opacity:1;transform:none}
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="NOVA NIIF Master Pro, inicio">
+      <span class="brand-mark">NOVA</span>
+      <span class="brand-name">NIIF <span>Master Pro</span></span>
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Secciones">
+      <a href="#consultor">Consultor</a>
+      <a href="#novedades">Novedades NIIF</a>
+      <a href="#simulador">Simulador</a>
+      <a href="#planes">Planes</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="app.html#profesional">Entrar</a>
+      <a class="btn btn-brass" href="app.html#profesional">Probar gratis</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links" onclick="toggleMenu(this)">Menú</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero" id="inicio">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">Consultor NIIF con inteligencia artificial</div>
+        <h1>Pregunta como contador. Recibe la norma, el cálculo y <em>el asiento</em>.</h1>
+        <p class="lead">NOVA NIIF Master Pro analiza tu caso, identifica la NIIF aplicable, calcula paso a paso y propone los asientos contables con la referencia al párrafo. Para quienes aplican NIIF completas o NIIF para las PYMES.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-brass" href="app.html#profesional">Probar gratis <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="#planes">Ver planes</a>
+        </div>
+        <p class="hero-note"><b>2 consultas gratuitas</b> · Sin tarjeta · Español, inglés y portugués</p>
+      </div>
+
+      <div class="ledger" aria-label="Ejemplo de respuesta del consultor">
+        <div class="ledger-top">
+          <span class="label">Ejemplo de respuesta</span>
+          <span class="label mono" id="ledger-ref">NIIF 16</span>
+        </div>
+        <div class="ledger-tabs" role="tablist" aria-label="Casos de ejemplo">
+          <button class="ledger-tab" role="tab" aria-selected="true" data-case="0">Arrendamiento<span class="mono">NIIF 16</span></button>
+          <button class="ledger-tab" role="tab" aria-selected="false" data-case="1">Deterioro<span class="mono">NIC 36</span></button>
+          <button class="ledger-tab" role="tab" aria-selected="false" data-case="2">Inventarios<span class="mono">NIC 2</span></button>
+        </div>
+        <div class="ledger-body" id="ledger-body" role="tabpanel" aria-live="polite"></div>
+        <div class="ledger-foot">
+          <span>Ejemplo ilustrativo con cifras de un caso típico.</span>
+          <a href="app.html#profesional">Haz tu consulta →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cover" aria-label="Normas cubiertas">
+    <div class="wrap">
+      <span>NIIF completas</span><span>NIIF para las PYMES</span><span>NIC</span><span>CINIIF y SIC</span><span>Novedades del IASB</span>
+    </div>
+  </div>
+
+  <!-- Consultor -->
+  <section class="sec" id="consultor">
+    <div class="wrap split">
+      <div class="rv">
+        <div class="eyebrow">El consultor</div>
+        <h2>Del caso al asiento contable, en una sola respuesta.</h2>
+        <p class="lead" style="margin-top:16px">Describe la operación con tus cifras. El consultor no busca una respuesta prefabricada: razona tu caso y te entrega un análisis que puedes revisar línea por línea.</p>
+        <ol class="anatomy">
+          <li><div><b>Hechos y supuestos</b><span>Resume los datos clave y declara cualquier supuesto que necesite.</span></div></li>
+          <li><div><b>Norma aplicable</b><span>Cita la NIIF o NIC y el párrafo que sustenta el tratamiento.</span></div></li>
+          <li><div><b>Cálculos paso a paso</b><span>Factores, tablas de amortización y resultados intermedios.</span></div></li>
+          <li><div><b>Asientos contables</b><span>En formato Debe y Haber, listos para tu registro.</span></div></li>
+          <li><div><b>Conclusión y aclaraciones</b><span>La respuesta directa, y puedes pedir más detalle sobre el mismo caso.</span></div></li>
+        </ol>
+      </div>
+      <div class="shot rv">
+        <div class="frame">
+          <div class="frame-bar"><i></i><i></i><i></i><span class="url">nova-niif · Consultor</span></div>
+          <div class="frame-crop"><img src="assets/app-consultor.webp" width="2252" height="2912" alt="Respuesta del consultor: hechos, norma NIIF 16, cálculos, tabla de amortización y asientos del primer año de un arrendamiento" loading="lazy"></div>
+        </div>
+        <div class="phone"><img src="assets/app-movil.webp" width="1170" height="2532" alt="El consultor en un teléfono móvil" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Novedades -->
+  <section class="sec updates" id="novedades">
+    <div class="wrap updates-grid">
+      <div class="photo rv">
+        <img alt="Fachada de cristal de un edificio corporativo en un distrito financiero" loading="lazy"
+          src="https://images.unsplash.com/photo-1768101225267-c6fc5678c113?auto=format&fit=crop&w=1600&q=80"
+          srcset="https://images.unsplash.com/photo-1768101225267-c6fc5678c113?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1768101225267-c6fc5678c113?auto=format&fit=crop&w=1600&q=80 1600w, https://images.unsplash.com/photo-1768101225267-c6fc5678c113?auto=format&fit=crop&w=2400&q=82 2400w, https://images.unsplash.com/photo-1768101225267-c6fc5678c113?auto=format&fit=crop&w=3200&q=82 3200w"
+          sizes="(max-width:1020px) 100vw, 40vw">
+        <span class="credit">Foto: Unsplash</span>
+      </div>
+      <div class="rv">
+        <div class="eyebrow">Novedades normativas</div>
+        <h2>Las NIIF cambian cada año. Tu consultor también.</h2>
+        <p class="lead" style="margin-top:16px">Cuando preguntas por una norma nueva, una enmienda o una fecha de vigencia, el consultor revisa fuentes oficiales antes de responder y te indica de dónde obtuvo la información.</p>
+        <div class="timeline">
+          <div class="year"><h3>Vigentes desde 2026</h3><ul>
+            <li><b>Enmiendas a NIIF 9 y NIIF 7</b><span>Clasificación y medición, pagos electrónicos y contratos de electricidad dependientes de la naturaleza.</span></li>
+            <li><b>Mejoras anuales, volumen 11</b><span>Cambios puntuales a NIIF 1, 7, 9, 10 y NIC 7.</span></li>
+          </ul></div>
+          <div class="year"><h3>Desde 2027</h3><ul>
+            <li><b>NIIF 18 · Presentación e información a revelar</b><span>Reemplaza la NIC 1: nuevas categorías y subtotales en el estado de resultados.</span></li>
+            <li><b>NIIF para las PYMES · Tercera edición</b><span>Nuevo modelo de ingresos, pérdidas crediticias esperadas y valor razonable.</span></li>
+            <li><b>NIIF 19 y enmienda a NIC 21</b><span>Revelaciones reducidas para subsidiarias y conversión a moneda hiperinflacionaria.</span></li>
+          </ul></div>
+          <div class="year"><h3>Desde 2029</h3><ul>
+            <li><b>NIIF 20 · Activos y pasivos regulatorios</b><span>Reemplaza la NIIF 14 para entidades con tarifas reguladas.</span></li>
+          </ul></div>
+        </div>
+        <p class="src">Fuente: IFRS Foundation. Fechas de vigencia para periodos anuales que comienzan en o después del 1 de enero de cada año.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simulador -->
+  <section class="sec" id="simulador">
+    <div class="wrap split rev">
+      <div class="shot rv">
+        <div class="frame">
+          <div class="frame-bar"><i></i><i></i><i></i><span class="url">nova-niif · Simulador</span></div>
+          <img src="assets/app-examen.webp" width="2384" height="1376" alt="Simulador de certificación: pregunta de NIC 23 con opciones de respuesta y temporizador" loading="lazy">
+        </div>
+      </div>
+      <div class="rv">
+        <div class="eyebrow">Simulador de certificación</div>
+        <h2>Practica con casos, no con definiciones.</h2>
+        <p class="lead" style="margin-top:16px">Exámenes cronometrados con casos numéricos de NIIF 16, NIC 36, NIC 2, NIC 16 y NIC 23. Al terminar ves tu nota y la explicación de cada caso con su base normativa.</p>
+        <p style="margin-top:24px"><a class="btn btn-line" href="app.html#examen">Hacer un examen de práctica <span class="arrow">→</span></a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audiencia -->
+  <section class="sec" style="padding-top:0">
+    <div class="wrap aud">
+      <div class="photo rv">
+        <img alt="Profesionales revisando gráficos financieros en una reunión" loading="lazy"
+          src="https://images.unsplash.com/photo-1758518729685-f88df7890776?auto=format&fit=crop&w=1600&q=80"
+          srcset="https://images.unsplash.com/photo-1758518729685-f88df7890776?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1758518729685-f88df7890776?auto=format&fit=crop&w=1600&q=80 1600w, https://images.unsplash.com/photo-1758518729685-f88df7890776?auto=format&fit=crop&w=2400&q=82 2400w, https://images.unsplash.com/photo-1758518729685-f88df7890776?auto=format&fit=crop&w=3000&q=82 3000w"
+          sizes="(max-width:1020px) 100vw, 50vw">
+        <span class="credit">Foto: Unsplash</span>
+      </div>
+      <div class="rv">
+        <div class="eyebrow">Para quién es</div>
+        <h2>Para quien prepara, revisa o enseña estados financieros.</h2>
+        <div class="roles">
+          <div class="role"><b>Contadores independientes</b><span>Resuelve dudas de clientes con la norma a la mano.</span></div>
+          <div class="role"><b>Firmas de auditoría</b><span>Contrasta tratamientos y cálculos antes de emitir.</span></div>
+          <div class="role"><b>Equipos financieros</b><span>Políticas contables y asientos para el cierre.</span></div>
+          <div class="role"><b>Docentes y estudiantes</b><span>Casos prácticos y simulador de certificación.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cómo empezar -->
+  <section class="sec" id="como-empezar" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="eyebrow">Cómo empezar</div>
+        <h2>De la prueba gratuita a tu suscripción.</h2>
+      </div>
+      <div class="steps">
+        <div class="stp rv"><h3>Prueba el consultor</h3><p>Haz 2 consultas gratis, con aclaraciones incluidas, y un examen de práctica.</p></div>
+        <div class="stp rv"><h3>Elige tu plan</h3><p>En Ecuador pagas por transferencia bancaria con factura. Desde otros países, con PayPal.</p></div>
+        <div class="stp rv"><h3>Activa tu código</h3><p>Recibes tu código PRO por WhatsApp. Lo ingresas en la app y listo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Planes -->
+  <section class="sec" id="planes" style="background:var(--paper-2)">
+    <div class="wrap">
+      <div class="plans-head rv">
+        <div class="sec-head">
+          <div class="eyebrow">Planes</div>
+          <h2>Suscripción mensual o anual.</h2>
+          <p class="lead">Cada consulta se resuelve en tiempo real con inteligencia artificial y, cuando hace falta, con fuentes oficiales actualizadas. Por eso el servicio es por suscripción.</p>
+        </div>
+        <div class="region" role="group" aria-label="Región de facturación">
+          <button type="button" aria-pressed="true" data-region="ec" onclick="setRegion('ec')">Ecuador</button>
+          <button type="button" aria-pressed="false" data-region="intl" onclick="setRegion('intl')">Internacional</button>
+        </div>
+      </div>
+      <div class="plans">
+        <div class="plan rv">
+          <div class="name">Prueba</div>
+          <div class="price"><b>Gratis</b></div>
+          <div class="tax">Sin tarjeta</div>
+          <ul><li>2 consultas con IA</li><li>2 aclaraciones por consulta</li><li>Examen de práctica</li><li>Panel de novedades NIIF</li></ul>
+          <a class="btn btn-line" href="app.html#profesional">Probar gratis</a>
+        </div>
+        <div class="plan main rv">
+          <span class="tag">Recomendado</span>
+          <div class="name">PRO Mensual</div>
+          <div class="price"><b data-price="monthly">$19</b><span>/ mes</span></div>
+          <div class="tax" data-tax="monthly">+ IVA 15% · total $21.85</div>
+          <ul><li>Hasta 300 consultas al mes, incluidas las aclaraciones</li><li>Ejercicios completos con cálculos y asientos</li><li>Novedades con fuentes oficiales</li><li>Simulador de certificación</li><li>Español, inglés y portugués</li></ul>
+          <button class="btn btn-ink" type="button" onclick="subscribe('mensual')">Suscribirme</button>
+        </div>
+        <div class="plan rv">
+          <div class="name">PRO Anual</div>
+          <div class="price"><b data-price="annual">$190</b><span>/ año</span></div>
+          <div class="tax" data-tax="annual">+ IVA 15% · total $218.50</div>
+          <ul><li>Todo lo del plan mensual</li><li>Equivale a 2 meses gratis</li><li>Un solo pago al año</li></ul>
+          <button class="btn btn-line" type="button" onclick="subscribe('anual')">Suscripción anual</button>
+        </div>
+      </div>
+      <p class="fine">Precios en dólares de Estados Unidos. En Ecuador se suma el IVA del 15% y se emite factura electrónica. Fuera de Ecuador el pago es por PayPal, sin IVA. Uso justo: hasta 300 consultas por mes; cada pregunta y cada aclaración cuentan como una consulta.</p>
+    </div>
+  </section>
+
+  <!-- Preguntas -->
+  <section class="sec" id="preguntas">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="eyebrow">Preguntas frecuentes</div>
+        <h2>Lo que suelen preguntar los contadores.</h2>
+      </div>
+      <div class="faq rv">
+        <details><summary>¿Las respuestas reemplazan mi criterio profesional?</summary><p>No. El consultor fundamenta cada respuesta en la norma y muestra sus cálculos para que puedas revisarlos, pero la responsabilidad del tratamiento contable y de los estados financieros sigue siendo tuya. Úsalo como apoyo técnico.</p></details>
+        <details><summary>¿Qué normas cubre?</summary><p>NIIF completas, NIIF para las PYMES, NIC, interpretaciones CINIIF y SIC, y las novedades que emite el IASB. También puede relacionar el tratamiento NIIF con aspectos tributarios de Ecuador, indicando que esa parte es complementaria.</p></details>
+        <details><summary>¿Cómo se mantiene al día con los cambios en las NIIF?</summary><p>Cuando la pregunta trata de normas nuevas, enmiendas o fechas de vigencia, el consultor consulta en línea fuentes oficiales como la IFRS Foundation y las grandes firmas, y cita de dónde obtuvo la información.</p></details>
+        <details><summary>¿Qué cuenta como una consulta?</summary><p>Cada pregunta que envías y cada aclaración sobre esa misma respuesta. Los planes PRO incluyen hasta 300 consultas al mes; el cupo se renueva el día 1 de cada mes.</p></details>
+        <details><summary>¿Emiten factura?</summary><p>Sí. En Ecuador emitimos factura electrónica con IVA del 15%. Al pagar por WhatsApp te pedimos tus datos de facturación.</p></details>
+        <details><summary>¿Cómo activo mi suscripción?</summary><p>Después de confirmar tu pago te enviamos tu código PRO por WhatsApp. En la app, abre la sección Profesional, escribe el código en "Licencia PRO" y pulsa Activar. Al renovar conservas el mismo código.</p></details>
+        <details><summary>¿Se guardan mis consultas?</summary><p>La app no almacena el contenido de tus consultas en nuestros servidores: se procesan para generar la respuesta y solo se registra cuántas consultas usaste en el mes.</p></details>
+        <details><summary>¿Funciona en el celular?</summary><p>Sí. Funciona en cualquier navegador y puedes instalarla en tu teléfono o computadora como una aplicación.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cierre -->
+  <section class="closing">
+    <div class="wrap">
+      <div class="rv">
+        <div class="eyebrow" style="color:var(--brass)">Empieza hoy</div>
+        <h2>Tu próxima consulta NIIF, resuelta con la norma en la mano.</h2>
+        <p class="lead">Prueba el consultor con dos casos reales de tu trabajo. Sin tarjeta y sin instalar nada.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-brass" href="app.html#profesional">Probar gratis <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="#" onclick="openWhatsApp(event)">Escribir por WhatsApp</a>
+        </div>
+      </div>
+      <div class="photo rv">
+        <img alt="Profesional revisando información financiera en una tableta" loading="lazy"
+          src="https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=1600&q=80"
+          srcset="https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=1600&q=80 1600w, https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=2400&q=82 2400w"
+          sizes="(max-width:1020px) 100vw, 45vw">
+        <span class="credit">Foto: Unsplash</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#inicio"><span class="brand-mark">NOVA</span><span class="brand-name" style="color:#fff">NIIF <span>Master Pro</span></span></a>
+      <p style="margin-top:14px;max-width:46ch">Consultor técnico NIIF con inteligencia artificial y simulador de certificación para profesionales contables.</p>
+    </div>
+    <div>
+      <h4>Producto</h4>
+      <ul><li><a href="app.html#profesional">Consultor</a></li><li><a href="app.html#examen">Simulador</a></li><li><a href="#novedades">Novedades NIIF</a></li><li><a href="#planes">Planes</a></li></ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul><li><a href="#" onclick="openWhatsApp(event)">WhatsApp +593 99 346 3014</a></li><li><a href="#preguntas">Preguntas frecuentes</a></li></ul>
+    </div>
+  </div>
+  <div class="legal"><div class="wrap">© <span id="yr"></span> NOVA NIIF Master Pro. Plataforma independiente, no afiliada a la IFRS Foundation ni a ACCA. Las respuestas del consultor son orientativas y no sustituyen el juicio profesional. Fotografías: Unsplash.</div></div>
+</footer>
+
+<script>
+/* ---------- Configuración comercial (igual que en app.html) ---------- */
+const PLANS = { monthly:19, annual:190, intlMonthly:39, intlAnnual:390, iva:15, whatsapp:'593993463014', paypalEmail:'ingmarcorivera@yahoo.es' };
+const money = n => '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2});
+const money2 = n => '$' + Number(n).toFixed(2);
+let region = 'ec';
+
+/* ---------- Asiento vivo ---------- */
+const CASES = [
+  { ref:'NIIF 16',
+    facts:'Bodega a 3 años · cuotas anuales vencidas de $18,000 · tasa incremental 9% · costos directos $800.',
+    seals:['NIIF 16.26','NIIF 16.24'],
+    calc:['Factor anualidad 3 años al 9% = <b>2.5313</b>','Pasivo = 18,000 × 2.5313 = <b>45,563</b>','Derecho de uso = 45,563 + 800 = <b>46,363</b>'],
+    entry:[['Activo por derecho de uso','46,363',''],['Pasivo por arrendamiento','','45,563'],['Bancos · costos directos','','800']],
+    conclusion:'Pasivo inicial <b>$45,563</b> · Activo por derecho de uso <b>$46,363</b>' },
+  { ref:'NIC 36',
+    facts:'Maquinaria con valor en libros de $320,000 · valor razonable menos costos de disposición $270,000 · valor en uso $290,000.',
+    seals:['NIC 36.18','NIC 36.59','NIC 36.60'],
+    calc:['Importe recuperable = mayor (270,000; 290,000) = <b>290,000</b>','Pérdida = 320,000 − 290,000 = <b>30,000</b>'],
+    entry:[['Pérdida por deterioro','30,000',''],['Deterioro acumulado · Maquinaria','','30,000']],
+    conclusion:'Importe recuperable <b>$290,000</b> · Pérdida por deterioro <b>$30,000</b>' },
+  { ref:'NIC 2',
+    facts:'1,000 unidades a costo de $45 · precio de venta $52 · comisión 10% · flete $3 por unidad.',
+    seals:['NIC 2.9','NIC 2.6','NIC 2.34'],
+    calc:['VNR = 52.00 − 5.20 − 3.00 = <b>43.80</b>','Rebaja = (45.00 − 43.80) × 1,000 = <b>1,200</b>'],
+    entry:[['Costo de ventas · rebaja de inventario','1,200',''],['Estimación por valor neto realizable','','1,200']],
+    conclusion:'Inventario medido a <b>$43,800</b> · Rebaja de <b>$1,200</b> a resultados' }
+];
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let caseIdx = 0, timers = [], cycle = null, userPicked = false;
+
+function renderCase(i){
+  caseIdx = i; timers.forEach(clearTimeout); timers = [];
+  const c = CASES[i];
+  document.getElementById('ledger-ref').textContent = c.ref;
+  document.querySelectorAll('.ledger-tab').forEach(t => t.setAttribute('aria-selected', String(Number(t.dataset.case) === i)));
+  const body = document.getElementById('ledger-body');
+  body.innerHTML = `
+    <div class="step"><div class="step-k">Hechos</div><div class="step-v">${c.facts}</div></div>
+    <div class="step"><div class="step-k">Norma</div><div class="step-v seals">${c.seals.map(s => `<span class="seal">${s}</span>`).join('')}</div></div>
+    <div class="step"><div class="step-k">Cálculo</div><div class="step-v calc">${c.calc.map(l => `<div>${l}</div>`).join('')}</div></div>
+    <div class="step"><div class="step-k">Asiento</div><div class="step-v"><table class="journal"><thead><tr><th>Cuenta</th><th class="n">Debe</th><th class="n">Haber</th></tr></thead><tbody>${c.entry.map(r => `<tr class="${r[1] ? '' : 'credit'}"><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="step"><div class="step-k">Conclusión</div><div class="step-v conclusion">${c.conclusion}</div></div>`;
+  const steps = [...body.querySelectorAll('.step')];
+  if (reduced) { steps.forEach(s => s.classList.add('on')); return; }
+  steps.forEach((s, k) => timers.push(setTimeout(() => s.classList.add('on'), 180 + k * 520)));
+}
+function startCycle(){
+  if (reduced || userPicked) return;
+  clearInterval(cycle);
+  cycle = setInterval(() => { if (!document.hidden) renderCase((caseIdx + 1) % CASES.length); }, 8500);
+}
+document.querySelectorAll('.ledger-tab').forEach(t => t.addEventListener('click', () => { userPicked = true; clearInterval(cycle); renderCase(Number(t.dataset.case)); }));
+document.querySelector('.ledger').addEventListener('mouseenter', () => clearInterval(cycle));
+document.querySelector('.ledger').addEventListener('mouseleave', startCycle);
+renderCase(0); startCycle();
+
+/* ---------- Región de precios ---------- */
+function setRegion(r){
+  region = r;
+  document.querySelectorAll('.region button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.region === r)));
+  const m = r === 'ec' ? PLANS.monthly : PLANS.intlMonthly, a = r === 'ec' ? PLANS.annual : PLANS.intlAnnual;
+  document.querySelector('[data-price="monthly"]').textContent = money(m);
+  document.querySelector('[data-price="annual"]').textContent = money(a);
+  const tax = n => r === 'ec' ? `+ IVA ${PLANS.iva}% · total ${money2(n * (1 + PLANS.iva / 100))}` : 'Pago con PayPal · sin IVA';
+  document.querySelector('[data-tax="monthly"]').textContent = tax(m);
+  document.querySelector('[data-tax="annual"]').textContent = tax(a);
+}
+
+/* ---------- Pago ---------- */
+const waLink = text => `https://wa.me/${PLANS.whatsapp}?text=${encodeURIComponent(text)}`;
+function paypalLink(plan){
+  const amount = plan === 'anual' ? PLANS.intlAnnual : PLANS.intlMonthly;
+  return 'https://www.paypal.com/cgi-bin/webscr?' + new URLSearchParams({cmd:'_xclick',business:PLANS.paypalEmail,item_name:`NOVA NIIF MASTER PRO - ${plan === 'anual' ? 'Plan Anual' : 'Plan Mensual'}`,amount:String(amount),currency_code:'USD',no_shipping:'1'}).toString();
+}
+function subscribe(plan){
+  const base = plan === 'anual' ? PLANS.annual : PLANS.monthly, iva = Math.round(base * PLANS.iva) / 100, total = base + iva;
+  const intl = plan === 'anual' ? PLANS.intlAnnual : PLANS.intlMonthly;
+  const name = plan === 'anual' ? 'Anual' : 'Mensual';
+  const msg = `Hola, quiero suscribirme a NOVA NIIF MASTER PRO, plan ${name}: ${money2(base)} + IVA = ${money2(total)}. ¿Me envían los datos para la transferencia bancaria?\n\nDatos para la factura:\n- RUC o cédula:\n- Nombre o razón social:\n- Dirección:\n- Correo electrónico:\n- Teléfono:`;
+  closeModal();
+  const m = document.createElement('div');
+  m.className = 'modal'; m.id = 'pay-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-labelledby', 'pay-title');
+  m.addEventListener('click', e => { if (e.target === m) closeModal(); });
+  const ecFirst = region === 'ec';
+  const ec = `<div class="pay"><h4>Ecuador · Transferencia bancaria</h4><p>Escríbenos por WhatsApp con tus datos de facturación. Te enviamos los datos de la cuenta y, al recibir tu comprobante, tu factura y tu código PRO.</p>
+      <table><tr><td>Subtotal</td><td>${money2(base)}</td></tr><tr><td>IVA ${PLANS.iva}%</td><td>${money2(iva)}</td></tr><tr><td>Total a pagar</td><td>${money2(total)}</td></tr></table>
+      <a class="btn btn-wa" href="${waLink(msg)}" target="_blank" rel="noopener">Pagar por WhatsApp</a></div>`;
+  const pp = `<div class="pay"><h4>Internacional · PayPal</h4><p>Paga con tu cuenta PayPal o con tarjeta. Luego envíanos el comprobante por WhatsApp para recibir tu código PRO. Precio sin IVA: <b class="mono">${money2(intl)}</b>.</p>
+      <a class="btn btn-ink" href="${paypalLink(plan)}" target="_blank" rel="noopener">Pagar con PayPal</a></div>`;
+  m.innerHTML = `<div class="modal-card"><div class="modal-head"><div><h3 id="pay-title">Elige cómo pagar</h3><p style="margin:4px 0 0;color:var(--muted);font-size:14.5px">Plan PRO ${name}</p></div><button class="modal-x" type="button" aria-label="Cerrar" onclick="closeModal()">×</button></div>${ecFirst ? ec + pp : pp + ec}<p style="font-size:13px;color:var(--muted);margin:14px 0 0">La activación se realiza dentro de las 24 horas siguientes a la confirmación del pago.</p></div>`;
+  document.body.appendChild(m);
+  m.querySelector('.modal-x').focus();
+  document.addEventListener('keydown', escModal);
+}
+function escModal(e){ if (e.key === 'Escape') closeModal(); }
+function closeModal(){ document.getElementById('pay-modal')?.remove(); document.removeEventListener('keydown', escModal); }
+function openWhatsApp(e){ e.preventDefault(); window.open(waLink('Hola, tengo una consulta sobre NOVA NIIF MASTER PRO.'), '_blank', 'noopener'); }
+
+/* ---------- Menú móvil ---------- */
+function toggleMenu(btn){
+  const links = document.getElementById('nav-links'); const open = !links.classList.contains('open');
+  links.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? 'Cerrar' : 'Menú';
+}
+document.querySelectorAll('#nav-links a').forEach(a => a.addEventListener('click', () => { const b = document.querySelector('.menu-btn'); if (document.getElementById('nav-links').classList.contains('open')) toggleMenu(b); }));
+
+/* ---------- Revelado al hacer scroll ---------- */
+if (!reduced && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(el => io.observe(el));
+} else document.querySelectorAll('.rv').forEach(el => el.classList.add('in'));
+
+document.getElementById('yr').textContent = new Date().getFullYear();
+setRegion('ec');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

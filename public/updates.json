@@ -1,0 +1,61 @@
+{
+  "updated": "2026-10-06",
+  "items": [
+    {
+      "standard": "NIIF 18",
+      "source": "https://www.ifrs.org/issued-standards/list-of-standards/ifrs-18-presentation-and-disclosure-in-financial-statements/",
+      "es": { "category": "Nueva norma", "title": "Presentación e información a revelar en los estados financieros", "effective": "1 de enero de 2027", "summary": "Reemplaza la NIC 1. Clasifica ingresos y gastos en categorías de operación, inversión y financiación, exige los subtotales de resultado operativo y de resultado antes de financiación e impuestos, y requiere revelar las medidas de rendimiento definidas por la gerencia. Aplicación retroactiva." },
+      "en": { "category": "New standard", "title": "Presentation and Disclosure in Financial Statements", "effective": "1 January 2027", "summary": "Replaces IAS 1. Classifies income and expenses into operating, investing and financing categories, requires operating profit and profit before financing and income taxes subtotals, and requires disclosure of management-defined performance measures. Retrospective application." },
+      "pt": { "category": "Nova norma", "title": "Apresentação e Divulgação nas Demonstrações Financeiras", "effective": "1 de janeiro de 2027", "summary": "Substitui a IAS 1. Classifica receitas e despesas nas categorias operacional, de investimento e de financiamento, exige os subtotais de lucro operacional e de lucro antes de financiamento e impostos, e requer divulgação das medidas de desempenho definidas pela administração. Aplicação retrospectiva." }
+    },
+    {
+      "standard": "NIIF 19",
+      "source": "https://www.ifrs.org/issued-standards/list-of-standards/ifrs-19-subsidiaries-without-public-accountability-disclosures/",
+      "es": { "category": "Nueva norma", "title": "Subsidiarias sin obligación pública de rendir cuentas: información a revelar", "effective": "1 de enero de 2027", "summary": "Norma voluntaria que permite a subsidiarias elegibles aplicar las NIIF completas con requerimientos de revelación reducidos, siempre que su controladora prepare estados consolidados bajo NIIF." },
+      "en": { "category": "New standard", "title": "Subsidiaries without Public Accountability: Disclosures", "effective": "1 January 2027", "summary": "Voluntary standard allowing eligible subsidiaries to apply full IFRS recognition and measurement with reduced disclosures, provided the parent prepares IFRS consolidated financial statements." },
+      "pt": { "category": "Nova norma", "title": "Controladas sem Responsabilidade Pública: Divulgações", "effective": "1 de janeiro de 2027", "summary": "Norma opcional que permite a controladas elegíveis aplicar as IFRS completas com divulgações reduzidas, desde que a controladora elabore demonstrações consolidadas em IFRS." }
+    },
+    {
+      "standard": "NIIF para las PYMES",
+      "source": "https://www.ifrs.org/news-and-events/news/2025/02/iasb-issues-major-update-smes-accounting-standard/",
+      "es": { "category": "Tercera edición", "title": "Actualización integral de la NIIF para las PYMES", "effective": "1 de enero de 2027", "summary": "Alinea la norma con NIIF 9, 10, 13 y 15, entre otras: nuevo modelo de ingresos en cinco pasos, pérdidas crediticias esperadas simplificadas y una nueva sección de medición del valor razonable. Relevante para la mayoría de PYMES en Ecuador y Latinoamérica." },
+      "en": { "category": "Third edition", "title": "Comprehensive update of the IFRS for SMEs Accounting Standard", "effective": "1 January 2027", "summary": "Aligns the standard with IFRS 9, 10, 13 and 15, among others: new five-step revenue model, simplified expected credit losses and a new fair value measurement section." },
+      "pt": { "category": "Terceira edição", "title": "Atualização abrangente da IFRS para PMEs", "effective": "1 de janeiro de 2027", "summary": "Alinha a norma às IFRS 9, 10, 13 e 15, entre outras: novo modelo de receita em cinco etapas, perdas de crédito esperadas simplificadas e nova seção de mensuração do valor justo." }
+    },
+    {
+      "standard": "NIC 21",
+      "source": "https://www.ifrs.org/news-and-events/news/2025/11/iasb-issues-amendments-ias-21/",
+      "es": { "category": "Enmienda", "title": "Conversión a una moneda de presentación hiperinflacionaria", "effective": "1 de enero de 2027", "summary": "Exige convertir a la tasa de cierre la información de una moneda no hiperinflacionaria cuando la moneda de presentación es hiperinflacionaria. Aplicación retroactiva." },
+      "en": { "category": "Amendment", "title": "Translation to a Hyperinflationary Presentation Currency", "effective": "1 January 2027", "summary": "Requires translation at the closing rate when information in a non-hyperinflationary currency is translated into a hyperinflationary presentation currency. Retrospective application." },
+      "pt": { "category": "Alteração", "title": "Conversão para uma Moeda de Apresentação Hiperinflacionária", "effective": "1 de janeiro de 2027", "summary": "Exige conversão pela taxa de fechamento quando informações em moeda não hiperinflacionária são convertidas para uma moeda de apresentação hiperinflacionária. Aplicação retrospectiva." }
+    },
+    {
+      "standard": "NIIF 9 / NIIF 7",
+      "source": "https://www.ifrs.org/projects/work-plan/amendments-to-the-classification-and-measurement-of-financial-instruments/",
+      "es": { "category": "Enmienda", "title": "Clasificación y medición de instrumentos financieros", "effective": "1 de enero de 2026", "summary": "Opción de política para dar de baja pasivos liquidados mediante sistemas de pago electrónico antes de la fecha de liquidación (si se cumplen tres condiciones), guía SPPI para características contingentes como metas ESG, y nuevas revelaciones en NIIF 7." },
+      "en": { "category": "Amendment", "title": "Classification and Measurement of Financial Instruments", "effective": "1 January 2026", "summary": "Policy option to derecognise liabilities settled through electronic payment systems before settlement date (if three conditions are met), SPPI guidance for contingent features such as ESG targets, and new IFRS 7 disclosures." },
+      "pt": { "category": "Alteração", "title": "Classificação e Mensuração de Instrumentos Financeiros", "effective": "1 de janeiro de 2026", "summary": "Opção de política para baixar passivos liquidados por sistemas de pagamento eletrônico antes da data de liquidação (se três condições forem atendidas), orientação SPPI para características contingentes como metas ESG e novas divulgações na IFRS 7." }
+    },
+    {
+      "standard": "NIIF 9 / NIIF 7",
+      "source": "https://kpmg.com/us/en/articles/2026/q2-2026-new-ifrs-accounting-standards-amendments-are-you-ready.html",
+      "es": { "category": "Enmienda", "title": "Contratos de electricidad dependientes de la naturaleza", "effective": "1 de enero de 2026", "summary": "Aclara la excepción de 'uso propio' y permite contabilidad de coberturas para contratos de compra de energía renovable (PPA) con volúmenes variables, con nuevas revelaciones." },
+      "en": { "category": "Amendment", "title": "Contracts Referencing Nature-dependent Electricity", "effective": "1 January 2026", "summary": "Clarifies the 'own use' exception and permits hedge accounting for renewable power purchase agreements with variable volumes, with new disclosures." },
+      "pt": { "category": "Alteração", "title": "Contratos de Eletricidade Dependente da Natureza", "effective": "1 de janeiro de 2026", "summary": "Esclarece a exceção de 'uso próprio' e permite contabilidade de hedge para contratos de compra de energia renovável (PPA) com volumes variáveis, com novas divulgações." }
+    },
+    {
+      "standard": "Mejoras anuales",
+      "source": "https://kpmg.com/us/en/articles/2026/q2-2026-new-ifrs-accounting-standards-amendments-are-you-ready.html",
+      "es": { "category": "Volumen 11", "title": "Mejoras anuales a las NIIF", "effective": "1 de enero de 2026", "summary": "Cambios de alcance reducido a NIIF 1, NIIF 7, NIIF 9, NIIF 10 y NIC 7." },
+      "en": { "category": "Volume 11", "title": "Annual Improvements to IFRS Accounting Standards", "effective": "1 January 2026", "summary": "Narrow-scope changes to IFRS 1, IFRS 7, IFRS 9, IFRS 10 and IAS 7." },
+      "pt": { "category": "Volume 11", "title": "Melhorias Anuais às Normas IFRS", "effective": "1 de janeiro de 2026", "summary": "Alterações de escopo restrito nas IFRS 1, IFRS 7, IFRS 9, IFRS 10 e IAS 7." }
+    },
+    {
+      "standard": "NIIF 20",
+      "source": "https://www.ifrs.org/news-and-events/news/2026/05/iasb-issues-ifrs-20/",
+      "es": { "category": "Nueva norma", "title": "Activos y pasivos regulatorios", "effective": "1 de enero de 2029", "summary": "Reemplaza la NIIF 14. Las entidades con tarifas reguladas reconocen activos y pasivos regulatorios cuando el regulador permite recuperar o exige devolver importes en tarifas futuras." },
+      "en": { "category": "New standard", "title": "Regulatory Assets and Regulatory Liabilities", "effective": "1 January 2029", "summary": "Replaces IFRS 14. Rate-regulated entities recognise regulatory assets and liabilities when the regulator allows recovery or requires refund of amounts through future rates." },
+      "pt": { "category": "Nova norma", "title": "Ativos e Passivos Regulatórios", "effective": "1 de janeiro de 2029", "summary": "Substitui a IFRS 14. Entidades com tarifas reguladas reconhecem ativos e passivos regulatórios quando o regulador permite recuperar ou exige devolver valores por meio de tarifas futuras." }
+    }
+  ]
+}

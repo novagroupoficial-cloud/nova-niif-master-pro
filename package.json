@@ -1,0 +1,10 @@
+{
+  "name": "nova-niif-master-pro",
+  "version": "8.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NOVA NIIF MASTER PRO — simulador y consultor NIIF/IFRS con IA",
+  "dependencies": {
+    "@netlify/blobs": "^10.7.0"
+  }
+}

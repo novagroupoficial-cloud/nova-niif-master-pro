@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NOVA NIIF · Administración de suscripciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f1f5f9}
+    .inp{width:100%;padding:.6rem .8rem;border:1px solid #cbd5e1;border-radius:.75rem;background:#fff;color:#0f172a;font-size:.9rem}
+    .inp:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 4px #dbeafe}
+    .lbl{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:.3rem}
+    .btn{padding:.6rem 1rem;border-radius:.75rem;font-weight:800;font-size:.85rem}
+    .chip{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-size:.72rem;font-weight:800;white-space:nowrap}
+    th{white-space:nowrap}
+  </style>
+</head>
+<body class="min-h-screen text-slate-900">
+  <header class="bg-slate-950 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-br from-blue-600 to-violet-600 font-black tracking-[.15em] px-3 py-2 rounded-xl">NOVA</div>
+        <div><div class="font-black text-lg leading-tight">NIIF MASTER PRO</div><div class="text-xs text-slate-400">Administración de suscripciones y códigos PRO</div></div>
+      </div>
+      <button id="logout" onclick="logout()" class="hidden btn bg-white/10 hover:bg-white/20 border border-white/20">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Acceso -->
+    <section id="login" class="max-w-md mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <h1 class="text-xl font-black">Acceso de administrador</h1>
+      <p class="text-sm text-slate-500 mt-1">Ingresa la clave definida en Netlify como <code class="bg-slate-100 px-1 rounded">ADMIN_KEY</code>.</p>
+      <input id="admin-key" type="password" class="inp mt-4" placeholder="Clave de administrador" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+      <button onclick="login()" class="btn mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white">Entrar</button>
+      <div id="login-msg" class="text-sm font-bold text-rose-700 mt-3"></div>
+    </section>
+
+    <div id="app" class="hidden space-y-6">
+      <!-- Resumen -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-3" id="summary"></section>
+
+      <!-- Crear -->
+      <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <h2 class="font-black text-lg">Generar código PRO</h2>
+        <p class="text-sm text-slate-500">Créalo cuando confirmes el pago. El vencimiento se calcula desde la fecha de inicio según el plan.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+          <div class="sm:col-span-2"><label class="lbl" for="f-cliente">Cliente</label><input id="f-cliente" class="inp" placeholder="Nombre o razón social"></div>
+          <div><label class="lbl" for="f-contacto">WhatsApp o correo</label><input id="f-contacto" class="inp" placeholder="0991234567"></div>
+          <div><label class="lbl" for="f-plan">Plan</label><select id="f-plan" class="inp"><option value="mensual">Mensual (1 mes)</option><option value="trimestral">Trimestral (3 meses)</option><option value="semestral">Semestral (6 meses)</option><option value="anual">Anual (12 meses)</option></select></div>
+          <div><label class="lbl" for="f-pago">Forma de pago</label><select id="f-pago" class="inp"><option>Transferencia</option><option>PayPal</option><option>Cortesía</option><option>Otro</option></select></div>
+          <div><label class="lbl" for="f-inicio">Fecha de inicio</label><input id="f-inicio" type="date" class="inp"></div>
+          <div><label class="lbl" for="f-cantidad">Cantidad</label><input id="f-cantidad" type="number" min="1" max="50" value="1" class="inp"></div>
+          <div><label class="lbl" for="f-nota">Nota (factura, etc.)</label><input id="f-nota" class="inp" placeholder="Factura 001-001-000123"></div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <button onclick="createCodes()" class="btn bg-blue-600 hover:bg-blue-700 text-white">Generar código</button>
+          <span id="create-msg" class="text-sm font-bold self-center"></span>
+        </div>
+        <div id="created" class="mt-4 space-y-3"></div>
+      </section>
+
+      <!-- Lista -->
+      <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div><h2 class="font-black text-lg">Suscripciones</h2><p class="text-sm text-slate-500">Renovar extiende el vencimiento desde la fecha actual de vencimiento (o desde hoy si ya venció). El código del cliente no cambia.</p></div>
+          <div class="flex flex-wrap gap-2">
+            <input id="q" class="inp !w-56" placeholder="Buscar cliente o código" oninput="renderList()">
+            <select id="fstate" class="inp !w-44" onchange="renderList()"><option value="">Todos</option><option value="activo">Activos</option><option value="porvencer">Por vencer (7 días)</option><option value="vencido">Vencidos</option><option value="anulado">Anulados</option></select>
+            <button onclick="exportCsv()" class="btn bg-slate-900 hover:bg-slate-800 text-white">Exportar CSV</button>
+            <button onclick="load()" class="btn border border-slate-300 hover:bg-slate-50">Actualizar</button>
+          </div>
+        </div>
+        <div class="mt-4 overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-900 text-white text-left"><tr><th class="px-3 py-2">Código</th><th class="px-3 py-2">Cliente</th><th class="px-3 py-2">Plan</th><th class="px-3 py-2">Vence</th><th class="px-3 py-2">Estado</th><th class="px-3 py-2">Uso mes</th><th class="px-3 py-2">Acciones</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div id="list-msg" class="text-sm text-slate-500 mt-3"></div>
+      </section>
+    </div>
+  </main>
+
+<script>
+const SITE = location.origin;
+let KEY = '';
+let RECORDS = [];
+let HOY = new Date().toLocaleDateString('en-CA');
+const PLAN_LABEL = {mensual:'Mensual',trimestral:'Trimestral',semestral:'Semestral',anual:'Anual',permanente:'Permanente'};
+
+function ss(k,v){ try{ if(v===undefined) return sessionStorage.getItem(k); if(v===null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); }catch(e){ return null; } }
+function esc(v){ return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function fmtDate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
+function daysLeft(d){ return Math.round((Date.parse(d+'T00:00:00Z')-Date.parse(HOY+'T00:00:00Z'))/86400000); }
+function stateOf(r){
+  if(r.activo===false) return {k:'anulado',label:'Anulado',cls:'bg-slate-200 text-slate-700'};
+  const n=daysLeft(r.vence);
+  if(n<0) return {k:'vencido',label:`Vencido hace ${-n} d`,cls:'bg-rose-100 text-rose-800'};
+  if(n<=7) return {k:'porvencer',label:n===0?'Vence hoy':`Vence en ${n} d`,cls:'bg-amber-100 text-amber-800'};
+  return {k:'activo',label:'Activo',cls:'bg-emerald-100 text-emerald-800'};
+}
+function waNumber(c){ let d=String(c||'').replace(/\D/g,''); if(!d) return ''; if(d.length===10&&d.startsWith('0')) d='593'+d.slice(1); if(d.length===9) d='593'+d; return d.length>=11?d:''; }
+function clientMessage(r){
+  return `¡Bienvenido a NOVA NIIF MASTER PRO!\n\nTu código PRO es: ${r.code}\nPlan: ${PLAN_LABEL[r.plan]||r.plan}\nVálido hasta: ${fmtDate(r.vence)}\n\nCómo activarlo:\n1. Ingresa a ${SITE}/app.html\n2. Abre la pestaña PROFESIONAL\n3. En "Licencia PRO" escribe tu código y pulsa Activar.\n\nGracias por tu suscripción.`;
+}
+function renewMessage(r){
+  return `Hola${r.cliente?' '+r.cliente:''}, tu suscripción a NOVA NIIF MASTER PRO fue renovada.\n\nCódigo: ${r.code}\nNuevo vencimiento: ${fmtDate(r.vence)}\n\nPuedes seguir usando el mismo código. ¡Gracias!`;
+}
+function reminderMessage(r){
+  return `Hola${r.cliente?' '+r.cliente:''}, te recordamos que tu suscripción a NOVA NIIF MASTER PRO (código ${r.code}) vence el ${fmtDate(r.vence)}. Para renovarla, responde a este mensaje y te enviamos los datos de pago.`;
+}
+
+async function api(body){
+  const res=await fetch('/api/admin',{method:'POST',headers:{'content-type':'application/json','x-admin-key':KEY},body:JSON.stringify(body)});
+  let data={}; try{ data=await res.json(); }catch(e){ data={ok:false,error: res.status===404?'not_deployed':'server_error'}; }
+  return data;
+}
+const ERRORS={unauthorized:'Clave incorrecta.',not_configured:'Falta configurar ADMIN_KEY en Netlify.',not_deployed:'El panel funciona en el sitio publicado en Netlify.',server_error:'Error del servidor. Inténtalo de nuevo.',not_found:'Código no encontrado.'};
+
+async function login(){
+  KEY=document.getElementById('admin-key').value.trim();
+  const msg=document.getElementById('login-msg'); msg.textContent='Verificando…';
+  const data=await api({action:'list'});
+  if(!data.ok){ msg.textContent=ERRORS[data.error]||'No se pudo entrar.'; return; }
+  ss('novaAdminKey',KEY); msg.textContent='';
+  show(true); applyList(data);
+}
+function logout(){ ss('novaAdminKey',null); KEY=''; show(false); }
+function show(on){
+  document.getElementById('login').classList.toggle('hidden',on);
+  document.getElementById('app').classList.toggle('hidden',!on);
+  document.getElementById('logout').classList.toggle('hidden',!on);
+}
+async function load(){
+  const data=await api({action:'list'});
+  if(!data.ok){ if(data.error==='unauthorized'){ logout(); } document.getElementById('list-msg').textContent=ERRORS[data.error]||'Error'; return; }
+  applyList(data);
+}
+function applyList(data){ RECORDS=data.records||[]; if(data.hoy) HOY=data.hoy; renderSummary(); renderList(); }
+
+function renderSummary(){
+  const c={activo:0,porvencer:0,vencido:0,anulado:0}; RECORDS.forEach(r=>c[stateOf(r).k]++);
+  const card=(n,l,cls)=>`<div class="bg-white rounded-2xl border border-slate-200 p-4"><div class="text-2xl font-black ${cls}">${n}</div><div class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">${l}</div></div>`;
+  document.getElementById('summary').innerHTML=card(c.activo+c.porvencer,'Suscripciones activas','text-emerald-700')+card(c.porvencer,'Vencen en 7 días','text-amber-700')+card(c.vencido,'Vencidas','text-rose-700')+card(RECORDS.length,'Códigos emitidos','text-slate-900');
+}
+function renderList(){
+  const q=document.getElementById('q').value.trim().toLowerCase(), f=document.getElementById('fstate').value;
+  const rows=RECORDS.filter(r=>(!q||(r.code+' '+(r.cliente||'')+' '+(r.contacto||'')).toLowerCase().includes(q))&&(!f||stateOf(r).k===f));
+  document.getElementById('rows').innerHTML=rows.map(r=>{
+    const st=stateOf(r), wa=waNumber(r.contacto);
+    const msg=st.k==='porvencer'||st.k==='vencido'?reminderMessage(r):clientMessage(r);
+    return `<tr class="border-t border-slate-200 align-top">
+      <td class="px-3 py-2 font-mono font-bold whitespace-nowrap">${esc(r.code)}</td>
+      <td class="px-3 py-2"><div class="font-bold">${esc(r.cliente||'—')}</div><div class="text-xs text-slate-500">${esc(r.contacto||'')}</div>${r.nota?`<div class="text-xs text-slate-400">${esc(r.nota)}</div>`:''}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${esc(PLAN_LABEL[r.plan]||r.plan)}<div class="text-xs text-slate-400">${esc(r.pago||'')}</div></td>
+      <td class="px-3 py-2 whitespace-nowrap">${fmtDate(r.vence)}</td>
+      <td class="px-3 py-2"><span class="chip ${st.cls}">${st.label}</span></td>
+      <td class="px-3 py-2 text-center">${r.usoMes??'—'}</td>
+      <td class="px-3 py-2"><div class="flex flex-wrap gap-1.5">
+        <select id="rp-${esc(r.code)}" class="inp !w-32 !py-1.5 !text-xs"><option value="mensual">+1 mes</option><option value="trimestral">+3 meses</option><option value="semestral">+6 meses</option><option value="anual">+12 meses</option></select>
+        <button onclick="renew('${esc(r.code)}')" class="btn !py-1.5 !text-xs bg-blue-600 hover:bg-blue-700 text-white">Renovar</button>
+        <button onclick="toggle('${esc(r.code)}',${r.activo===false})" class="btn !py-1.5 !text-xs border border-slate-300 hover:bg-slate-50">${r.activo===false?'Reactivar':'Anular'}</button>
+        <button onclick='copyText(${JSON.stringify(msg)})' class="btn !py-1.5 !text-xs border border-slate-300 hover:bg-slate-50">Copiar mensaje</button>
+        ${wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" class="btn !py-1.5 !text-xs bg-emerald-600 hover:bg-emerald-700 text-white">WhatsApp</a>`:''}
+      </div></td></tr>`;
+  }).join('') || `<tr><td colspan="7" class="px-3 py-6 text-center text-slate-500">Sin registros.</td></tr>`;
+}
+
+async function createCodes(){
+  const v=id=>document.getElementById(id).value;
+  const msg=document.getElementById('create-msg'); msg.className='text-sm font-bold self-center text-slate-600'; msg.textContent='Generando…';
+  const data=await api({action:'create',cliente:v('f-cliente'),contacto:v('f-contacto'),plan:v('f-plan'),pago:v('f-pago'),inicio:v('f-inicio'),cantidad:v('f-cantidad'),nota:v('f-nota')});
+  if(!data.ok){ msg.className='text-sm font-bold self-center text-rose-700'; msg.textContent=ERRORS[data.error]||'Error'; return; }
+  msg.className='text-sm font-bold self-center text-emerald-700'; msg.textContent=data.created.length===1?'Código generado.':`${data.created.length} códigos generados.`;
+  document.getElementById('created').innerHTML=data.created.map(r=>{
+    const m=clientMessage(r), wa=waNumber(r.contacto);
+    return `<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex flex-wrap items-center justify-between gap-3">
+      <div><div class="font-mono text-xl font-black tracking-wider">${esc(r.code)}</div><div class="text-xs text-slate-600">${esc(r.cliente||'')} · ${esc(PLAN_LABEL[r.plan])} · vence ${fmtDate(r.vence)}</div></div>
+      <div class="flex flex-wrap gap-2"><button onclick='copyText(${JSON.stringify(r.code)})' class="btn border border-slate-300 bg-white hover:bg-slate-50">Copiar código</button><button onclick='copyText(${JSON.stringify(m)})' class="btn border border-slate-300 bg-white hover:bg-slate-50">Copiar mensaje</button>${wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent(m)}" target="_blank" rel="noopener" class="btn bg-emerald-600 hover:bg-emerald-700 text-white">Enviar por WhatsApp</a>`:''}</div>
+    </div>`;
+  }).join('');
+  ['f-cliente','f-contacto','f-nota'].forEach(id=>document.getElementById(id).value=''); document.getElementById('f-cantidad').value=1;
+  load();
+}
+async function renew(code){
+  const plan=document.getElementById('rp-'+code).value;
+  const data=await api({action:'renew',code,plan});
+  if(!data.ok){ alert(ERRORS[data.error]||'Error'); return; }
+  await load();
+  const r=data.record, wa=waNumber(r.contacto), m=renewMessage(r);
+  if(confirm(`Renovado hasta ${fmtDate(r.vence)}.\n\n¿Copiar el mensaje de confirmación para el cliente?`)) copyText(m);
+  if(wa && confirm('¿Abrir WhatsApp para enviárselo?')) window.open(`https://wa.me/${wa}?text=${encodeURIComponent(m)}`,'_blank','noopener');
+}
+async function toggle(code,activate){
+  if(!activate && !confirm(`¿Anular el código ${code}? El cliente dejará de tener acceso PRO.`)) return;
+  const data=await api({action:activate?'activate':'revoke',code});
+  if(!data.ok){ alert(ERRORS[data.error]||'Error'); return; }
+  load();
+}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copiado'),()=>fallbackCopy(t)); } else fallbackCopy(t);
+}
+function fallbackCopy(t){ const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{document.execCommand('copy'); toast('Copiado');}catch(e){} a.remove(); }
+function toast(t){ const d=document.createElement('div'); d.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold z-50'; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1400); }
+function exportCsv(){
+  const head=['codigo','cliente','contacto','plan','pago','inicio','vence','estado','uso_mes','nota','creado'];
+  const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const lines=[head.join(',')].concat(RECORDS.map(r=>[r.code,r.cliente,r.contacto,r.plan,r.pago,r.inicio,r.vence,stateOf(r).label,r.usoMes,r.nota,r.creado].map(q).join(',')));
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`nova-niif-suscripciones-${HOY}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+document.getElementById('f-inicio').value=HOY;
+(async()=>{ const k=ss('novaAdminKey'); if(k){ KEY=k; const data=await api({action:'list'}); if(data.ok){ show(true); applyList(data); } else ss('novaAdminKey',null); } })();
+</script>
+</body>
+</html>

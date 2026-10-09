@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NOVA NIIF / IFRS MASTER PRO — Simulador de certificación, consultas técnicas y actualización normativa IFRS.">
+  <title>NOVA NIIF MASTER PRO</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#08111f">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(37,99,235,.24), transparent 32%),
+        radial-gradient(circle at 92% 5%, rgba(124,58,237,.18), transparent 28%),
+        #06101d;
+    }
+    .glass { background: rgba(6,16,29,.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,.99), rgba(248,250,252,.98)); }
+    .premium-shadow { box-shadow: 0 26px 80px rgba(2,8,23,.34); }
+    .nav-pill,.lang-btn { transition: all .2s ease; }
+    .nav-pill:hover,.lang-btn:hover { transform: translateY(-1px); }
+    .metric { background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025)); }
+    .grid-glow { background-image: linear-gradient(rgba(148,163,184,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.055) 1px,transparent 1px); background-size: 30px 30px; }
+    .brand-glow { box-shadow: 0 0 0 1px rgba(255,255,255,.11), 0 12px 38px rgba(37,99,235,.35); }
+    @media (max-width: 900px) {
+      .header-actions { width: 100%; justify-content: flex-start; }
+      .header-tabs { width: 100%; overflow-x: auto; }
+      header.glass { position: static; }
+    }
+    @media (max-width: 640px) {
+      #brand-title { font-size: 1.6rem; }
+      header .brand-glow { font-size: 1.35rem; padding: .6rem .8rem; }
+      #brand-subtitle { display: none; }
+      .lang-btn { padding: .5rem .75rem; font-size: .75rem; }
+      .header-tabs .nav-pill { padding: .7rem 1rem; font-size: .8rem; }
+    }
+    .consult-textarea { color-scheme: light; background:#fff !important; color:#0f172a !important; caret-color:#2563eb; }
+  .consult-textarea::selection { background:#bfdbfe; color:#0f172a; }
+  #consult-output{scroll-margin-top:240px}
+  .md-answer{color:#1e293b;font-size:.95rem;line-height:1.7}
+  .md-answer h3,.md-answer h4,.md-answer h5{font-weight:900;color:#0f172a;margin:1.1rem 0 .4rem}
+  .md-answer h3{font-size:1.1rem}.md-answer h4{font-size:1rem}.md-answer h5{font-size:.95rem}
+  .md-answer p{margin:.5rem 0}.md-answer ul{list-style:disc;padding-left:1.4rem;margin:.5rem 0}.md-answer ol{list-style:decimal;padding-left:1.4rem;margin:.5rem 0}
+  .md-answer li{margin:.2rem 0}.md-answer strong{color:#0f172a}.md-answer a{color:#2563eb;text-decoration:underline}
+  .md-answer code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:.35rem;padding:.05rem .35rem;font-size:.85em}
+  .md-answer hr{border:0;border-top:1px solid #e2e8f0;margin:1rem 0}
+  .md-answer blockquote{border-left:4px solid #93c5fd;background:#eff6ff;padding:.6rem .9rem;border-radius:.5rem;margin:.6rem 0}
+  .md-table{overflow-x:auto;margin:.7rem 0;border:1px solid #e2e8f0;border-radius:.75rem}
+  .md-table table{width:100%;border-collapse:collapse;font-size:.88rem}
+  .md-table th{background:#0f172a;color:#fff;text-align:left;padding:.5rem .7rem;font-weight:800;white-space:nowrap}
+  .md-table td{padding:.45rem .7rem;border-top:1px solid #e2e8f0;vertical-align:top}
+  .md-table tr:nth-child(even) td{background:#f8fafc}
+</style>
+</head>
+<body class="text-slate-900 min-h-screen flex flex-col">
+  <div class="fixed inset-0 pointer-events-none grid-glow opacity-50"></div>
+
+  <header class="glass text-white sticky top-0 z-50 border-b border-white/10">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-7 lg:px-10 py-5 lg:py-6">
+      <div class="flex flex-wrap items-center justify-between gap-5">
+        <div class="flex items-center gap-4 sm:gap-5 min-w-0">
+          <a href="/" class="relative shrink-0" aria-label="Inicio">
+            <div class="absolute inset-0 bg-blue-500 blur-xl opacity-35"></div>
+            <div class="relative brand-glow bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white font-black text-3xl sm:text-4xl lg:text-5xl px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl tracking-[0.16em]">NOVA</div>
+          </a>
+          <div class="min-w-0">
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 id="brand-title" class="font-black text-3xl sm:text-4xl lg:text-5xl xl:text-6xl tracking-tight leading-none">NIIF MASTER PRO</h1>
+              <span id="global-badge" class="bg-emerald-400/10 text-emerald-300 text-[11px] sm:text-xs font-extrabold px-3 py-1.5 rounded-full border border-emerald-400/25 uppercase tracking-wider">Edición Global</span>
+            </div>
+            <p id="brand-subtitle" class="text-sm sm:text-base lg:text-lg text-slate-300 mt-2.5">Formación IFRS · Simulación de certificación · Inteligencia técnica</p>
+          </div>
+        </div>
+
+        <div class="header-actions flex flex-wrap items-center justify-end gap-3">
+          <div class="flex items-center gap-1.5 bg-slate-950/85 p-1.5 rounded-2xl border border-white/15 shadow-inner" aria-label="Language selector">
+            <button onclick="setLanguage('es')" id="lang-es" class="lang-btn px-4 sm:px-5 py-3 rounded-xl text-sm sm:text-base font-black bg-white text-slate-950 shadow-lg">ESPAÑOL</button>
+            <button onclick="setLanguage('en')" id="lang-en" class="lang-btn px-4 sm:px-5 py-3 rounded-xl text-sm sm:text-base font-black text-slate-300 hover:text-white">ENGLISH</button>
+            <button onclick="setLanguage('pt')" id="lang-pt" class="lang-btn px-4 sm:px-5 py-3 rounded-xl text-sm sm:text-base font-black text-slate-300 hover:text-white">PORTUGUÊS</button>
+          </div>
+          <span class="hidden xl:inline-flex items-center gap-2 text-sm font-bold text-slate-200 border border-white/10 bg-white/5 rounded-2xl px-4 py-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span><span id="online-label">Plataforma online</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="header-tabs mt-5 flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit max-w-full">
+        <button onclick="setEnvironment('demo')" id="mode-btn-demo" class="nav-pill px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-black flex items-center gap-2 text-slate-300 hover:text-white whitespace-nowrap">
+          <i data-lucide="sparkles" class="w-5 h-5"></i><span id="tab-demo">DEMO</span>
+        </button>
+        <button onclick="setEnvironment('certificacion')" id="mode-btn-cert" class="nav-pill px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-black flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-950/30 whitespace-nowrap">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i><span id="tab-exam">CENTRO DE EXAMEN</span>
+        </button>
+        <button onclick="setEnvironment('profesional')" id="mode-btn-pro" class="nav-pill px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-black flex items-center gap-2 text-slate-300 hover:text-white whitespace-nowrap">
+          <i data-lucide="briefcase-business" class="w-5 h-5"></i><span id="tab-pro">PROFESIONAL</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
+    <section class="mb-8 rounded-[2rem] overflow-hidden border border-white/10 premium-shadow bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white">
+      <div class="p-7 sm:p-9 lg:p-11 grid lg:grid-cols-[1.35fr_.65fr] gap-9 items-center">
+        <div>
+          <div id="hero-kicker" class="inline-flex items-center gap-2 text-[11px] sm:text-xs font-extrabold uppercase tracking-[.18em] text-blue-200 bg-blue-400/10 border border-blue-400/20 px-3 py-1.5 rounded-full">
+            <i data-lucide="shield-check" class="w-4 h-4"></i> Plataforma internacional de formación IFRS
+          </div>
+          <h2 id="hero-title" class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.04]">Domina las NIIF con práctica, criterio técnico y actualización normativa.</h2>
+          <p id="hero-copy" class="mt-4 text-sm sm:text-base lg:text-lg text-slate-300 max-w-3xl leading-relaxed">Una experiencia profesional para preparación de certificaciones, entrenamiento corporativo y consulta técnica aplicada.</p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <button onclick="setEnvironment('certificacion')" class="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm sm:text-base font-black transition shadow-lg shadow-blue-950/30 inline-flex items-center gap-2">
+              <i data-lucide="play-circle" class="w-5 h-5"></i><span id="hero-start">Iniciar simulador</span>
+            </button>
+            <button onclick="setEnvironment('demo')" class="px-6 py-3.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/15 text-white text-sm sm:text-base font-bold transition inline-flex items-center gap-2">
+              <i data-lucide="eye" class="w-5 h-5"></i><span id="hero-demo">Explorar demo</span>
+            </button>
+            <button onclick="goToPlans()" class="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-sm sm:text-base font-black transition inline-flex items-center gap-2">
+              <i data-lucide="badge-check" class="w-5 h-5"></i><span id="hero-plans">Ver planes</span>
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="metric rounded-2xl border border-white/10 p-5"><div class="text-3xl font-black">IA</div><div id="metric-1" class="text-sm sm:text-base text-slate-300 mt-2">Entornos de uso</div></div>
+          <div class="metric rounded-2xl border border-white/10 p-5"><div class="text-3xl font-black">10:00</div><div id="metric-2" class="text-sm sm:text-base text-slate-300 mt-2">Examen cronometrado</div></div>
+          <div class="metric rounded-2xl border border-white/10 p-5"><div class="text-3xl font-black">IFRS</div><div id="metric-3" class="text-sm sm:text-base text-slate-300 mt-2">Referencias normativas</div></div>
+          <div class="metric rounded-2xl border border-white/10 p-5"><div class="text-3xl font-black">PWA</div><div id="metric-4" class="text-sm sm:text-base text-slate-300 mt-2">Instalable y responsive</div></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="env-demo" class="hidden space-y-6">
+      <div class="panel rounded-3xl border border-slate-200 premium-shadow overflow-hidden">
+        <div class="p-6 sm:p-8 bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 text-white">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span class="inline-flex items-center gap-2 bg-amber-400/10 text-amber-200 border border-amber-300/20 rounded-full px-3 py-1.5 text-xs font-black uppercase tracking-wider"><i data-lucide="sparkles" class="w-4 h-4"></i><span id="demo-badge">Acceso DEMO</span></span>
+            <span id="demo-limit" class="text-xs sm:text-sm font-bold text-slate-200 bg-white/5 border border-white/10 rounded-xl px-3 py-2">5 preguntas · 2 consultas · 1 acceso gratuito</span>
+          </div>
+          <h2 id="demo-title" class="text-2xl sm:text-3xl font-black mt-4">Prueba NOVA NIIF MASTER PRO antes de activar PRO</h2>
+          <p id="demo-copy" class="text-sm sm:text-base text-slate-300 mt-2 max-w-3xl">Comprueba cómo funciona el simulador, la retroalimentación normativa y el consultor técnico. Al llegar al límite, la plataforma mostrará la opción de activar la versión PRO.</p>
+        </div>
+        <div class="p-6 sm:p-8 grid md:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-slate-200 p-5 bg-white"><div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="graduation-cap" class="w-5 h-5"></i></div><h3 id="demo-card1-title" class="font-black mt-4 text-lg">5 preguntas de examen</h3><p id="demo-card1-copy" class="text-sm text-slate-500 mt-2 leading-relaxed">Una prueba completa de la experiencia, con tiempo, calificación y explicación técnica.</p></div>
+          <div class="rounded-2xl border border-slate-200 p-5 bg-white"><div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i data-lucide="messages-square" class="w-5 h-5"></i></div><h3 id="demo-card2-title" class="font-black mt-4 text-lg">2 consultas técnicas</h3><p id="demo-card2-copy" class="text-sm text-slate-500 mt-2 leading-relaxed">Verifica el funcionamiento del consultor con casos de criterio contable y registro.</p></div>
+          <div class="rounded-2xl border border-slate-200 p-5 bg-white"><div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="lock-keyhole" class="w-5 h-5"></i></div><h3 id="demo-card3-title" class="font-black mt-4 text-lg">Después, activa PRO</h3><p id="demo-card3-copy" class="text-sm text-slate-500 mt-2 leading-relaxed">La demostración es única. El acceso ampliado corresponde a la licencia PRO.</p></div>
+        </div>
+        <div class="px-6 sm:px-8 pb-8 flex flex-wrap gap-3">
+          <button onclick="startDemoExam()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-black transition inline-flex items-center gap-2"><i data-lucide="play" class="w-4 h-4"></i><span id="demo-try-exam">Probar examen DEMO</span></button>
+          <button onclick="setEnvironment('profesional')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-black transition inline-flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span id="demo-try-pro">Probar consultor</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="env-certificacion" class="space-y-6">
+      <div class="panel rounded-3xl premium-shadow border border-slate-200 p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-5 mb-5 gap-4">
+          <div>
+            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><h2 id="exam-title" class="text-xl sm:text-2xl font-black text-slate-900">Simulador de certificación IFRS</h2></div>
+            <p id="exam-subtitle" class="text-sm text-slate-500 mt-1">Preguntas aleatorias con justificación por referencia normativa.</p>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl"><i data-lucide="clock" class="w-5 h-5 text-slate-600"></i><div><span id="time-label" class="text-[10px] uppercase font-bold text-slate-400 block leading-tight">Tiempo</span><span id="exam-timer" class="font-mono text-base sm:text-lg font-black text-slate-900">10:00</span></div></div>
+            <button onclick="startNewRandomExam()" class="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm"><i data-lucide="shuffle" class="w-4 h-4"></i><span id="new-test-label">Nuevo test aleatorio</span></button>
+          </div>
+        </div>
+        <div id="exam-content-area"></div>
+      </div>
+    </div>
+
+    <div id="env-profesional" class="hidden space-y-6">
+      <div class="bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 premium-shadow border border-white/10">
+        <div class="max-w-3xl">
+          <span id="pro-badge" class="bg-blue-400/20 text-blue-200 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-blue-400/30">Fuentes oficiales IFRS Foundation</span>
+          <h2 id="pro-title" class="text-2xl sm:text-3xl font-black mt-3">Enmiendas y normas vigentes</h2>
+          <p id="pro-copy" class="text-sm sm:text-base text-blue-100 mt-2">Seguimiento de cambios normativos y consulta técnica aplicada.</p>
+        </div>
+      </div>
+
+      <div id="normative-feed-container" class="grid gap-4"></div>
+
+      <div class="panel rounded-3xl border border-slate-200 premium-shadow p-6 sm:p-8">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="file-spreadsheet" class="w-6 h-6"></i></div>
+          <div><h3 id="consult-title" class="font-black text-slate-900 text-lg">Consultor de Asientos & Políticas NIIF</h3><p id="consult-subtitle" class="text-sm text-slate-500">Casos prácticos, ejercicios y criterio técnico NIIF resueltos con IA.</p></div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="quick-label" class="text-xs font-black uppercase tracking-wide text-slate-500">Consultas rápidas:</span>
+            <button type="button" onclick="quickPrompt(1)" class="px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-800 text-xs font-bold hover:bg-blue-100"><span id="quick-1">Novedades NIIF</span></button>
+            <button type="button" onclick="quickPrompt(2)" class="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50"><span id="quick-2">Ejercicio de arrendamiento</span></button>
+            <button type="button" onclick="quickPrompt(3)" class="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50"><span id="quick-3">Deterioro de una UGE</span></button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <label id="consult-label" for="consult-input" class="text-sm font-black text-slate-800">Describe tu consulta, antecedentes y contexto</label>
+              <span id="consult-char-count" class="text-xs font-bold text-slate-400">0 / 4000</span>
+            </div>
+            <textarea id="consult-input" rows="7" maxlength="4000" autocomplete="off" spellcheck="true"
+              oninput="updateConsultCharCount()"
+              class="consult-textarea w-full min-h-[180px] resize-y text-base leading-7 px-5 py-4 rounded-2xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 shadow-sm"
+              placeholder="Escribe aquí tu consulta o ejercicio."></textarea>
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <p id="consult-helper" class="text-xs sm:text-sm text-slate-500 leading-relaxed"></p>
+              <div class="flex gap-2 sm:justify-end">
+                <button type="button" onclick="clearConsultation()" class="px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-black rounded-xl flex items-center justify-center gap-2 transition shadow-sm">
+                  <i data-lucide="eraser" class="w-4 h-4"></i><span id="consult-clear">Borrar</span>
+                </button>
+                <button type="button" id="consult-run" onclick="runConsultation()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-black rounded-xl flex items-center justify-center gap-2 transition shadow-sm shadow-blue-200">
+                  <i data-lucide="search" class="w-4 h-4"></i><span id="consult-button">Consultar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="consult-counter" class="text-xs font-bold text-slate-500"></div>
+          <div id="consult-output" class="hidden p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl text-sm space-y-4"></div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+            <div class="flex items-center gap-2"><i data-lucide="key-round" class="w-4 h-4 text-blue-600"></i><span id="pro-lic-title" class="font-black text-slate-900 text-sm">Licencia PRO</span></div>
+            <p id="pro-lic-copy" class="text-xs text-slate-500 mt-1">Ingresa el código que recibiste al suscribirte.</p>
+            <div class="mt-3 flex flex-col sm:flex-row gap-2">
+              <input id="pro-code-input" type="text" autocomplete="off" class="consult-textarea flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600" placeholder="Código PRO">
+              <button type="button" onclick="saveProCode()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-black rounded-xl"><span id="pro-save">Activar</span></button>
+              <button type="button" onclick="removeProCode()" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 text-sm font-bold rounded-xl"><span id="pro-remove">Quitar código</span></button>
+            </div>
+            <div id="pro-status" class="text-xs font-bold text-emerald-700 mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section id="planes" class="mt-10 scroll-mt-48"></section>
+  </main>
+
+  <footer class="relative z-10 border-t border-white/10 bg-slate-950/80 text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap gap-3 items-center justify-between text-xs sm:text-sm">
+      <span><strong id="footer-brand" class="text-white">NOVA NIIF MASTER PRO</strong> · <span id="footer-copy">Plataforma especializada de información y formación IFRS</span></span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="globe-2" class="w-4 h-4"></i><span id="footer-global">Global · PWA · Responsive</span></span>
+      <span id="footer-contact"></span>
+      <p id="footer-disclaimer" class="w-full text-[11px] text-slate-500 leading-relaxed"></p>
+    </div>
+  </footer>
+
+<script>
+const APP = {
+  es: {
+    brand:'NIIF MASTER PRO', badge:'Edición Global', subtitle:'Formación IFRS · Simulación de certificación · Inteligencia técnica', online:'Plataforma online',
+    tabs:{demo:'DEMO',exam:'CENTRO DE EXAMEN',pro:'PROFESIONAL'},
+    hero:{kicker:'Plataforma internacional de formación IFRS',title:'Tu consultor NIIF con inteligencia artificial, disponible todos los días.',copy:'Resuelve consultas técnicas y ejercicios contables con cálculos paso a paso, asientos y referencia a la norma y el párrafo. Incluye simulador de certificación y seguimiento de novedades normativas. Acceso por suscripción mensual.',start:'Iniciar simulador',demo:'Explorar demo',plans:'Ver planes'},
+    metrics:['Consultor técnico NIIF','Examen cronometrado','Referencias normativas','Instalable y responsive'],
+    demo:{badge:'Acceso DEMO',limit:'5 preguntas · 2 consultas · 1 acceso gratuito',title:'Prueba NOVA NIIF MASTER PRO antes de activar PRO',copy:'Comprueba cómo funciona el simulador, la retroalimentación normativa y el consultor técnico. Al llegar al límite, la plataforma mostrará la opción de activar la versión PRO.',c1t:'5 preguntas de examen',c1c:'Una prueba completa de la experiencia, con tiempo, calificación y explicación técnica.',c2t:'2 consultas técnicas',c2c:'Verifica el funcionamiento del consultor con casos de criterio contable y registro.',c3t:'Después, activa PRO',c3c:'La demostración es única. El acceso ampliado corresponde a la licencia PRO.',tryExam:'Probar examen DEMO',tryPro:'Probar consultor'},
+    exam:{title:'Simulador de certificación IFRS',subtitle:'Preguntas aleatorias con justificación por referencia normativa.',time:'Tiempo',newTest:'Nuevo test aleatorio',item:'Pregunta',of:'de',completed:'Respondidas',prev:'Anterior',next:'Siguiente',finish:'Finalizar y calificar',passed:'¡Felicitaciones! Has aprobado el examen',failed:'No alcanzaste el puntaje mínimo requerido',passedText:'Excelente dominio técnico. Tus respuestas demuestran un criterio contable sólido y alineado con estándares internacionales.',failedText:'Revisa la fundamentación normativa de cada caso y vuelve a intentarlo.',score:'Nota',hits:'Aciertos',minimum:'Mínimo',retry:'Intentar nuevo examen',feedback:'Retroalimentación técnica por referencia normativa',case:'Caso',correct:'Correcta',incorrect:'Incorrecta',yourChoice:'Tu elección',official:'Respuesta correcta',unanswered:'No respondida',basis:'Base normativa'},
+    pro:{badge:'Fuentes oficiales IFRS Foundation',title:'Enmiendas y normas vigentes',copy:'Seguimiento de cambios normativos y consulta técnica aplicada.',consultTitle:'Consultor de Asientos & Políticas NIIF',consultSubtitle:'Casos prácticos, ejercicios y criterio técnico NIIF resueltos con IA.',button:'Consultar',effective:'Vigencia',source:'Fuente IFRS Foundation',prompt:'¿Cómo se registra la baja de un pasivo financiero bajo NIIF 9?',criterion:'Criterio técnico basado en NIIF 9 (párrafos 3.3.1 y 3.3.3)',answer:'Una entidad da de baja un pasivo financiero cuando la obligación contractual se extingue. La diferencia entre el importe en libros y la contraprestación pagada se reconoce en resultados.',entry:'Asiento tipo',debit:'(Debe) Pasivo financiero / Obligaciones financieras',credit:'(Haber) Efectivo y equivalentes de efectivo',gain:'(Haber/Debe) Ganancia o pérdida por extinción del pasivo',remaining:'Consultas DEMO restantes',locked:'Has utilizado tus 2 consultas gratuitas. Activa NOVA NIIF MASTER PRO para continuar.',responseLabel:'RESPUESTA A TU PREGUNTA:',followupLabel:'Aclarar o ampliar esta respuesta',followupPlaceholder:'Escribe aquí tu aclaración, duda adicional o información complementaria sobre esta misma consulta…',followupButton:'Enviar aclaración',followupNote:'Las aclaraciones sobre esta misma consulta no consumen otro crédito.',followupAnswerLabel:'AMPLIACIÓN DE LA RESPUESTA:',followupAnswer:'Esta aclaración forma parte de la misma consulta y conserva el contexto del caso original. Puedes seguir ampliando antecedentes o pedir que se detalle un punto específico sin consumir otro crédito DEMO.'},
+    footer:{copy:'Plataforma especializada de información y formación IFRS',global:'Global · PWA · Responsive',disclaimer:'Plataforma independiente: no está afiliada a la IFRS Foundation ni a ACCA. Las respuestas del consultor son orientativas y no reemplazan el juicio profesional.'},
+    questions:[
+      {id:1,standard:'NIIF 16',topic:'Arrendamientos - Pasivo inicial',question:'Una entidad firma un arrendamiento por 4 años con cuotas anuales vencidas de $25,000. La tasa incremental es 6% y el factor de valor presente de una anualidad a 4 años es 3.4651. ¿Por qué valor se reconoce inicialmente el pasivo?',options:[['A','$100,000 (suma nominal de cuotas)'],['B','$86,628 (valor presente de las cuotas)'],['C','$75,000 (excluyendo el último año)'],['D','$94,340 (usando tasa soberana)']],correct:'B',reference:'NIIF 16, párrafo 26',explanation:'El pasivo se mide al valor presente de los pagos futuros. $25,000 × 3.4651 = $86,627.50, aproximadamente $86,628.'},
+      {id:2,standard:'NIC 36',topic:'Deterioro - Importe recuperable',question:'Una maquinaria tiene valor en libros de $320,000. Valor razonable neto de disposición: $270,000; valor en uso: $290,000. ¿Cuál es el importe recuperable y el deterioro?',options:[['A','$270,000; pérdida de $50,000'],['B','$290,000; pérdida de $30,000'],['C','$320,000; sin deterioro'],['D','$280,000; pérdida de $40,000']],correct:'B',reference:'NIC 36, párrafos 18 y 59',explanation:'El importe recuperable es el mayor entre valor razonable neto y valor en uso: $290,000. La pérdida es $30,000.'},
+      {id:3,standard:'NIC 2',topic:'Inventarios - Valor neto realizable',question:'Una empresa mantiene 1,000 unidades a un costo de $45 c/u. Precio estimado de venta: $52; comisión 10%; flete $3 por unidad. ¿Cuál es la medición correcta?',options:[['A','$45,000; sin ajuste'],['B','$43,800; pérdida de $1,200'],['C','$52,000; ganancia de $7,000'],['D','$49,000; ganancia de $4,000']],correct:'B',reference:'NIC 2, párrafos 9 y 28',explanation:'VNR = $52 - $5.20 - $3 = $43.80. Como es menor que el costo, el inventario se ajusta a $43,800 y se reconoce una rebaja de $1,200.'},
+      {id:4,standard:'NIC 16',topic:'Propiedad, planta y equipo - Componentes',question:'Una aeronave adquirida en $20M incluye motores por $4M con vida útil de 5 años. Tras 2 años, con depreciación acumulada de $1.6M, los motores se sustituyen por otros de $5.5M. ¿Cómo se registra?',options:[['A','Capitalizar $5.5M sin dar de baja el componente previo'],['B','Dar de baja $2.4M y activar el nuevo componente por $5.5M'],['C','Registrar $5.5M íntegramente como gasto'],['D','Dar de baja $4M contra patrimonio']],correct:'B',reference:'NIC 16, párrafos 13 y 70',explanation:'Se da de baja el valor neto del componente sustituido ($2.4M) y se reconoce el nuevo componente por $5.5M.'},
+      {id:5,standard:'NIC 23',topic:'Costos por préstamos - Capitalización',question:'Se obtiene un crédito de $2,000,000 al 8% anual para construir una fábrica durante 10 meses. Los fondos ociosos generan $18,000. ¿Qué monto neto se capitaliza?',options:[['A','$160,000'],['B','$133,333'],['C','$115,333'],['D','$0']],correct:'C',reference:'NIC 23, párrafos 8 y 12',explanation:'Interés atribuible: $2,000,000 × 8% × 10/12 = $133,333.33. Menos $18,000 de rendimientos = $115,333.33.'}
+    ]
+  },
+  en: {
+    brand:'IFRS MASTER PRO', badge:'Global Edition', subtitle:'IFRS Learning · Certification Practice · Technical Intelligence', online:'Platform online',
+    tabs:{demo:'DEMO',exam:'EXAM CENTER',pro:'PROFESSIONAL'},
+    hero:{kicker:'International IFRS learning platform',title:'Your AI-powered IFRS consultant, available every day.',copy:'Solve technical questions and accounting exercises with step-by-step calculations, journal entries and references to the standard and paragraph. Includes a certification simulator and standards update tracking. Monthly subscription access.',start:'Start simulator',demo:'Explore demo',plans:'See plans'},
+    metrics:['IFRS technical consultant','Timed exam','IFRS references','Installable & responsive'],
+    demo:{badge:'DEMO Access',limit:'5 questions · 2 consultations · 1 free access',title:'Try NOVA IFRS MASTER PRO before activating PRO',copy:'See how the exam simulator, standards-based feedback and technical consultant work. Once the limit is reached, the platform will offer PRO activation.',c1t:'5 exam questions',c1c:'A complete sample experience with timing, scoring and technical explanations.',c2t:'2 technical consultations',c2c:'Test the consultant with accounting judgement and recording cases.',c3t:'Then activate PRO',c3c:'The demo is a one-time experience. Expanded access belongs to the PRO licence.',tryExam:'Try DEMO exam',tryPro:'Try consultant'},
+    exam:{title:'IFRS Certification Simulator',subtitle:'Random questions with standards-based references and explanations.',time:'Time',newTest:'New random test',item:'Question',of:'of',completed:'Answered',prev:'Previous',next:'Next',finish:'Finish & grade',passed:'Congratulations! You passed the exam',failed:'You did not reach the minimum score',passedText:'Excellent technical command. Your answers show solid accounting judgement aligned with international standards.',failedText:'Review the standards-based explanation for each case and try again.',score:'Score',hits:'Correct',minimum:'Minimum',retry:'Try another exam',feedback:'Technical feedback by standards reference',case:'Case',correct:'Correct',incorrect:'Incorrect',yourChoice:'Your choice',official:'Correct answer',unanswered:'Unanswered',basis:'Standards basis'},
+    pro:{badge:'Official IFRS Foundation sources',title:'Current standards and amendments',copy:'Standards update tracking and applied technical consultation.',consultTitle:'IFRS Entries & Policies Consultant',consultSubtitle:'Practical cases, exercises and IFRS technical judgement solved with AI.',button:'Consult',effective:'Effective',source:'IFRS Foundation source',prompt:'How is a financial liability derecognised under IFRS 9?',criterion:'Technical criterion based on IFRS 9 (paragraphs 3.3.1 and 3.3.3)',answer:'An entity derecognises a financial liability when the contractual obligation is extinguished. The difference between the carrying amount and the consideration paid is recognised in profit or loss.',entry:'Illustrative entry',debit:'(Debit) Financial liability / Borrowings',credit:'(Credit) Cash and cash equivalents',gain:'(Credit/Debit) Gain or loss on extinguishment',remaining:'DEMO consultations remaining',locked:'You have used your 2 free consultations. Activate NOVA IFRS MASTER PRO to continue.',responseLabel:'ANSWER TO YOUR QUESTION:',followupLabel:'Clarify or expand this answer',followupPlaceholder:'Write your clarification, additional question or extra information about this same consultation…',followupButton:'Send clarification',followupNote:'Clarifications about this same consultation do not use another credit.',followupAnswerLabel:'ANSWER EXPANSION:',followupAnswer:'This clarification remains part of the same consultation and keeps the context of the original case. You may add background or request more detail on a specific point without using another DEMO credit.'},
+    footer:{copy:'Specialised IFRS information and learning platform',global:'Global · PWA · Responsive',disclaimer:'Independent platform: not affiliated with the IFRS Foundation or ACCA. Consultant answers are guidance and do not replace professional judgement.'},
+    questions:[
+      {id:1,standard:'IFRS 16',topic:'Leases - Initial liability',question:'An entity enters into a 4-year lease with annual payments in arrears of $25,000. The incremental borrowing rate is 6%, and the 4-year annuity present value factor is 3.4651. At what amount is the lease liability initially recognised?',options:[['A','$100,000 (nominal sum of payments)'],['B','$86,628 (present value of payments)'],['C','$75,000 (excluding final year)'],['D','$94,340 (using sovereign rate)']],correct:'B',reference:'IFRS 16, paragraph 26',explanation:'The liability is measured at the present value of future payments. $25,000 × 3.4651 = $86,627.50, approximately $86,628.'},
+      {id:2,standard:'IAS 36',topic:'Impairment - Recoverable amount',question:'A machine has a carrying amount of $320,000. Fair value less costs of disposal is $270,000 and value in use is $290,000. What are the recoverable amount and impairment loss?',options:[['A','$270,000; $50,000 loss'],['B','$290,000; $30,000 loss'],['C','$320,000; no impairment'],['D','$280,000; $40,000 loss']],correct:'B',reference:'IAS 36, paragraphs 18 and 59',explanation:'Recoverable amount is the higher of fair value less costs of disposal and value in use: $290,000. The impairment loss is $30,000.'},
+      {id:3,standard:'IAS 2',topic:'Inventories - Net realisable value',question:'An entity holds 1,000 units costing $45 each. Estimated selling price is $52, selling commission is 10%, and freight is $3 per unit. What is the correct measurement?',options:[['A','$45,000; no adjustment'],['B','$43,800; $1,200 write-down'],['C','$52,000; $7,000 gain'],['D','$49,000; $4,000 gain']],correct:'B',reference:'IAS 2, paragraphs 9 and 28',explanation:'NRV = $52 - $5.20 - $3 = $43.80. Since NRV is below cost, inventory is written down to $43,800, recognising a $1,200 loss.'},
+      {id:4,standard:'IAS 16',topic:'Property, plant and equipment - Components',question:'An aircraft acquired for $20M includes engines costing $4M with a 5-year useful life. After 2 years, with $1.6M accumulated depreciation, the engines are replaced for $5.5M. How is this accounted for?',options:[['A','Capitalise $5.5M without derecognising the old component'],['B','Derecognise $2.4M and recognise the new component at $5.5M'],['C','Expense the full $5.5M'],['D','Derecognise the original $4M against equity']],correct:'B',reference:'IAS 16, paragraphs 13 and 70',explanation:'The remaining carrying amount of the replaced component ($2.4M) is derecognised and the new component is recognised at $5.5M.'},
+      {id:5,standard:'IAS 23',topic:'Borrowing costs - Capitalisation',question:'A $2,000,000 loan at 8% finances a factory under construction for 10 months. Temporarily invested funds earn $18,000. What net amount is capitalised?',options:[['A','$160,000'],['B','$133,333'],['C','$115,333'],['D','$0']],correct:'C',reference:'IAS 23, paragraphs 8 and 12',explanation:'Eligible interest: $2,000,000 × 8% × 10/12 = $133,333.33. Less $18,000 temporary investment income = $115,333.33.'}
+    ]
+  },
+  pt: {
+    brand:'IFRS MASTER PRO', badge:'Edição Global', subtitle:'Formação IFRS · Simulação de certificação · Inteligência técnica', online:'Plataforma online',
+    tabs:{demo:'DEMO',exam:'CENTRO DE EXAMES',pro:'PROFISSIONAL'},
+    hero:{kicker:'Plataforma internacional de formação IFRS',title:'Seu consultor IFRS com inteligência artificial, disponível todos os dias.',copy:'Resolva consultas técnicas e exercícios contábeis com cálculos passo a passo, lançamentos e referência à norma e ao parágrafo. Inclui simulador de certificação e acompanhamento das novidades normativas. Acesso por assinatura mensal.',start:'Iniciar simulador',demo:'Explorar demo',plans:'Ver planos'},
+    metrics:['Consultor técnico IFRS','Exame cronometrado','Referências IFRS','Instalável e responsivo'],
+    demo:{badge:'Acesso DEMO',limit:'5 questões · 2 consultas · 1 acesso gratuito',title:'Experimente NOVA IFRS MASTER PRO antes de ativar o PRO',copy:'Veja como funcionam o simulador, o feedback normativo e o consultor técnico. Ao atingir o limite, a plataforma mostrará a opção de ativar a versão PRO.',c1t:'5 questões de exame',c1c:'Uma experiência completa de amostra, com tempo, pontuação e explicação técnica.',c2t:'2 consultas técnicas',c2c:'Teste o consultor com casos de julgamento contábil e registro.',c3t:'Depois, ative o PRO',c3c:'A demonstração é única. O acesso ampliado corresponde à licença PRO.',tryExam:'Testar exame DEMO',tryPro:'Testar consultor'},
+    exam:{title:'Simulador de certificação IFRS',subtitle:'Questões aleatórias com referências normativas e explicações.',time:'Tempo',newTest:'Novo teste aleatório',item:'Questão',of:'de',completed:'Respondidas',prev:'Anterior',next:'Próxima',finish:'Finalizar e corrigir',passed:'Parabéns! Você foi aprovado',failed:'Você não atingiu a pontuação mínima',passedText:'Excelente domínio técnico. Suas respostas demonstram julgamento contábil sólido e alinhado aos padrões internacionais.',failedText:'Revise a fundamentação normativa de cada caso e tente novamente.',score:'Nota',hits:'Acertos',minimum:'Mínimo',retry:'Tentar novo exame',feedback:'Feedback técnico por referência normativa',case:'Caso',correct:'Correta',incorrect:'Incorreta',yourChoice:'Sua escolha',official:'Resposta correta',unanswered:'Não respondida',basis:'Base normativa'},
+    pro:{badge:'Fontes oficiais IFRS Foundation',title:'Normas e alterações vigentes',copy:'Acompanhamento de alterações normativas e consulta técnica aplicada.',consultTitle:'Consultor de Lançamentos & Políticas IFRS',consultSubtitle:'Casos práticos, exercícios e julgamento técnico IFRS resolvidos com IA.',button:'Consultar',effective:'Vigência',source:'Fonte IFRS Foundation',prompt:'Como é feita a baixa de um passivo financeiro segundo a IFRS 9?',criterion:'Critério técnico baseado na IFRS 9 (parágrafos 3.3.1 e 3.3.3)',answer:'Uma entidade baixa um passivo financeiro quando a obrigação contratual é extinta. A diferença entre o valor contábil e a contraprestação paga é reconhecida no resultado.',entry:'Lançamento ilustrativo',debit:'(Débito) Passivo financeiro / Obrigações financeiras',credit:'(Crédito) Caixa e equivalentes de caixa',gain:'(Crédito/Débito) Ganho ou perda na extinção do passivo',remaining:'Consultas DEMO restantes',locked:'Você utilizou suas 2 consultas gratuitas. Ative NOVA IFRS MASTER PRO para continuar.',responseLabel:'RESPOSTA À SUA PERGUNTA:',followupLabel:'Esclarecer ou ampliar esta resposta',followupPlaceholder:'Escreva aqui seu esclarecimento, dúvida adicional ou informação complementar sobre esta mesma consulta…',followupButton:'Enviar esclarecimento',followupNote:'Esclarecimentos sobre esta mesma consulta não consomem outro crédito.',followupAnswerLabel:'AMPLIAÇÃO DA RESPOSTA:',followupAnswer:'Este esclarecimento faz parte da mesma consulta e mantém o contexto do caso original. Você pode acrescentar antecedentes ou pedir mais detalhes sobre um ponto específico sem consumir outro crédito DEMO.'},
+    footer:{copy:'Plataforma especializada de informação e formação IFRS',global:'Global · PWA · Responsivo',disclaimer:'Plataforma independente: não é afiliada à IFRS Foundation nem à ACCA. As respostas do consultor são orientativas e não substituem o julgamento profissional.'},
+    questions:[
+      {id:1,standard:'IFRS 16',topic:'Arrendamentos - Passivo inicial',question:'Uma entidade celebra um arrendamento de 4 anos com pagamentos anuais vencidos de $25.000. A taxa incremental é 6% e o fator de valor presente de uma anuidade de 4 anos é 3,4651. Por qual valor o passivo é reconhecido inicialmente?',options:[['A','$100.000 (soma nominal dos pagamentos)'],['B','$86.628 (valor presente dos pagamentos)'],['C','$75.000 (excluindo o último ano)'],['D','$94.340 (usando taxa soberana)']],correct:'B',reference:'IFRS 16, parágrafo 26',explanation:'O passivo é mensurado pelo valor presente dos pagamentos futuros. $25.000 × 3,4651 = $86.627,50, aproximadamente $86.628.'},
+      {id:2,standard:'IAS 36',topic:'Impairment - Valor recuperável',question:'Uma máquina tem valor contábil de $320.000. Valor justo líquido dos custos de venda: $270.000; valor em uso: $290.000. Qual é o valor recuperável e a perda por impairment?',options:[['A','$270.000; perda de $50.000'],['B','$290.000; perda de $30.000'],['C','$320.000; sem perda'],['D','$280.000; perda de $40.000']],correct:'B',reference:'IAS 36, parágrafos 18 e 59',explanation:'O valor recuperável é o maior entre valor justo líquido e valor em uso: $290.000. A perda é de $30.000.'},
+      {id:3,standard:'IAS 2',topic:'Estoques - Valor realizável líquido',question:'Uma entidade possui 1.000 unidades com custo de $45 cada. Preço estimado de venda: $52; comissão: 10%; frete: $3 por unidade. Qual é a mensuração correta?',options:[['A','$45.000; sem ajuste'],['B','$43.800; perda de $1.200'],['C','$52.000; ganho de $7.000'],['D','$49.000; ganho de $4.000']],correct:'B',reference:'IAS 2, parágrafos 9 e 28',explanation:'VRL = $52 - $5,20 - $3 = $43,80. Como é menor que o custo, o estoque é reduzido para $43.800, reconhecendo perda de $1.200.'},
+      {id:4,standard:'IAS 16',topic:'Imobilizado - Componentes',question:'Uma aeronave adquirida por $20M inclui motores de $4M com vida útil de 5 anos. Após 2 anos, com depreciação acumulada de $1,6M, os motores são substituídos por novos de $5,5M. Como registrar?',options:[['A','Capitalizar $5,5M sem baixar o componente anterior'],['B','Baixar $2,4M e reconhecer o novo componente por $5,5M'],['C','Reconhecer $5,5M integralmente como despesa'],['D','Baixar $4M contra patrimônio líquido']],correct:'B',reference:'IAS 16, parágrafos 13 e 70',explanation:'O valor contábil remanescente do componente substituído ($2,4M) é baixado e o novo componente é reconhecido por $5,5M.'},
+      {id:5,standard:'IAS 23',topic:'Custos de empréstimos - Capitalização',question:'Um empréstimo de $2.000.000 a 8% financia uma fábrica em construção por 10 meses. Recursos temporariamente ociosos geram $18.000. Qual valor líquido é capitalizado?',options:[['A','$160.000'],['B','$133.333'],['C','$115.333'],['D','$0']],correct:'C',reference:'IAS 23, parágrafos 8 e 12',explanation:'Juros elegíveis: $2.000.000 × 8% × 10/12 = $133.333,33. Menos $18.000 de rendimentos temporários = $115.333,33.'}
+    ]
+  }
+};
+
+const CONSULT_UI = {
+  es:{label:'Describe tu consulta, antecedentes y contexto',placeholder:'Escribe aquí tu consulta o ejercicio. Incluye antecedentes, fechas, cifras, tratamiento contable actual y la pregunta concreta.',helper:'El consultor razona el caso con IA: identifica la norma, calcula paso a paso, propone asientos y cita párrafos. Para novedades normativas consulta fuentes oficiales en línea.',clear:'Borrar',
+    quick:'Consultas rápidas:',q1:'Novedades NIIF',q1p:'¿Qué normas NIIF nuevas y enmiendas entran en vigencia en los próximos dos años, y qué cambios recientes ha emitido el IASB? Indica fechas de vigencia y efecto práctico.',q2:'Ejercicio de arrendamiento',q2p:'Arrendamiento de una bodega por 3 años, cuotas anuales vencidas de $18,000, tasa incremental 9%, costos directos iniciales $800. Calcula el pasivo y el activo por derecho de uso iniciales, la tabla de amortización y los asientos del primer año.',q3:'Deterioro de una UGE',q3p:'Una UGE tiene plusvalía de $50,000, maquinaria $300,000 y edificio $250,000 (valores en libros). Importe recuperable de la UGE: $480,000. ¿Cómo se distribuye la pérdida por deterioro según NIC 36? Incluye asientos.',
+    thinking:'Analizando el caso con criterio NIIF…',thinkingNote:'Puede tardar entre 10 y 50 segundos si se consultan fuentes normativas.',you:'Tu consulta',followupYou:'Aclaración',answer:'Respuesta',sources:'Fuentes consultadas',
+    followupLabel:'Aclarar o ampliar esta respuesta',followupPlaceholder:'Escribe una duda adicional, un dato nuevo o pide el detalle de un cálculo…',followupButton:'Enviar aclaración',followupNoteDemo:'En DEMO cada consulta admite 2 aclaraciones sin consumir otro crédito.',followupNotePro:'Las aclaraciones continúan el mismo caso.',newConsult:'Nueva consulta',
+    remaining:'Consultas DEMO restantes',proActive:'PRO activo',proLeft:'consultas disponibles este mes',
+    err_demo_limit:'Has utilizado tus consultas DEMO. Activa NOVA NIIF MASTER PRO con tu código para continuar.',err_followup_limit:'Llegaste al máximo de aclaraciones DEMO para esta consulta. Inicia una nueva consulta o activa PRO.',err_invalid_code:'El código PRO no es válido. Revísalo e inténtalo de nuevo.',err_not_configured:'El consultor aún no está configurado en el servidor (falta la clave de la API).',err_not_deployed:'El consultor funciona cuando la app está publicada en Netlify. Abre la versión publicada.',err_upstream:'El motor de consulta no respondió. Inténtalo de nuevo en unos segundos.',err_bad_request:'La consulta es demasiado larga o tiene un formato no válido.',err_expired_code:'Tu suscripción PRO venció. Renueva tu plan y tu mismo código se reactiva.',err_pro_limit:'Alcanzaste el límite de consultas de tu plan este mes. El cupo se renueva el día 1.',
+    proTitle:'Licencia PRO',proCopy:'Ingresa el código que recibiste al suscribirte.',proPlaceholder:'Código PRO (ej. NOVA-XXXX)',proSave:'Activar',proRemove:'Quitar código',proSaved:'Código guardado. Se valida en tu próxima consulta.',proRemoved:'Código eliminado.',
+    feedAsk:'Consultar novedades con IA',feedError:'No se pudieron cargar las actualizaciones normativas.',updatedAt:'Actualizado al'},
+  en:{label:'Describe your question, background and context',placeholder:'Write your question or exercise here. Include background, dates, amounts, current accounting treatment and the specific question.',helper:'The consultant reasons through the case with AI: identifies the standard, calculates step by step, proposes journal entries and cites paragraphs. For recent changes it checks official sources online.',clear:'Clear',
+    quick:'Quick prompts:',q1:'IFRS updates',q1p:'Which new IFRS Standards and amendments become effective in the next two years, and what recent changes has the IASB issued? Give effective dates and practical impact.',q2:'Lease exercise',q2p:'Warehouse lease for 3 years, annual payments in arrears of $18,000, incremental borrowing rate 9%, initial direct costs $800. Calculate the initial lease liability and right-of-use asset, the amortisation schedule and first-year journal entries.',q3:'CGU impairment',q3p:'A CGU has goodwill of $50,000, machinery $300,000 and a building $250,000 (carrying amounts). Recoverable amount of the CGU: $480,000. How is the impairment loss allocated under IAS 36? Include journal entries.',
+    thinking:'Analysing the case under IFRS…',thinkingNote:'This may take 10–50 seconds when official sources are checked.',you:'Your question',followupYou:'Clarification',answer:'Answer',sources:'Sources consulted',
+    followupLabel:'Clarify or expand this answer',followupPlaceholder:'Add a question, a new fact, or ask for detail on a calculation…',followupButton:'Send clarification',followupNoteDemo:'In DEMO each consultation allows 2 clarifications without using another credit.',followupNotePro:'Clarifications continue the same case.',newConsult:'New consultation',
+    remaining:'DEMO consultations remaining',proActive:'PRO active',proLeft:'consultations left this month',
+    err_demo_limit:'You have used your DEMO consultations. Activate NOVA IFRS MASTER PRO with your code to continue.',err_followup_limit:'You reached the DEMO clarification limit for this consultation. Start a new one or activate PRO.',err_invalid_code:'The PRO code is not valid. Please check it and try again.',err_not_configured:'The consultant is not configured on the server yet (API key missing).',err_not_deployed:'The consultant works when the app is published on Netlify. Open the published version.',err_upstream:'The consultation engine did not respond. Please try again in a few seconds.',err_bad_request:'The question is too long or has an invalid format.',err_expired_code:'Your PRO subscription has expired. Renew your plan and your same code will be reactivated.',err_pro_limit:'You reached your plan\'s consultation limit for this month. It resets on the 1st.',
+    proTitle:'PRO licence',proCopy:'Enter the code you received when you subscribed.',proPlaceholder:'PRO code (e.g. NOVA-XXXX)',proSave:'Activate',proRemove:'Remove code',proSaved:'Code saved. It will be validated on your next consultation.',proRemoved:'Code removed.',
+    feedAsk:'Ask AI about updates',feedError:'Standards updates could not be loaded.',updatedAt:'Updated'},
+  pt:{label:'Descreva sua consulta, antecedentes e contexto',placeholder:'Escreva aqui sua consulta ou exercício. Inclua antecedentes, datas, valores, tratamento contábil atual e a pergunta específica.',helper:'O consultor analisa o caso com IA: identifica a norma, calcula passo a passo, propõe lançamentos e cita parágrafos. Para novidades normativas consulta fontes oficiais on-line.',clear:'Limpar',
+    quick:'Consultas rápidas:',q1:'Novidades IFRS',q1p:'Quais novas normas IFRS e alterações entram em vigor nos próximos dois anos, e quais mudanças recentes o IASB emitiu? Indique datas de vigência e efeito prático.',q2:'Exercício de arrendamento',q2p:'Arrendamento de um galpão por 3 anos, pagamentos anuais vencidos de $18.000, taxa incremental de 9%, custos diretos iniciais de $800. Calcule o passivo e o ativo de direito de uso iniciais, a tabela de amortização e os lançamentos do primeiro ano.',q3:'Impairment de UGC',q3p:'Uma UGC tem goodwill de $50.000, máquinas de $300.000 e edifício de $250.000 (valores contábeis). Valor recuperável da UGC: $480.000. Como a perda por impairment é alocada segundo a IAS 36? Inclua lançamentos.',
+    thinking:'Analisando o caso segundo as IFRS…',thinkingNote:'Pode levar de 10 a 50 segundos quando fontes oficiais são consultadas.',you:'Sua consulta',followupYou:'Esclarecimento',answer:'Resposta',sources:'Fontes consultadas',
+    followupLabel:'Esclarecer ou ampliar esta resposta',followupPlaceholder:'Escreva uma dúvida adicional, um dado novo ou peça o detalhe de um cálculo…',followupButton:'Enviar esclarecimento',followupNoteDemo:'No DEMO cada consulta admite 2 esclarecimentos sem consumir outro crédito.',followupNotePro:'Os esclarecimentos continuam o mesmo caso.',newConsult:'Nova consulta',
+    remaining:'Consultas DEMO restantes',proActive:'PRO ativo',proLeft:'consultas disponíveis neste mês',
+    err_demo_limit:'Você utilizou suas consultas DEMO. Ative NOVA IFRS MASTER PRO com seu código para continuar.',err_followup_limit:'Você atingiu o limite de esclarecimentos DEMO desta consulta. Inicie uma nova consulta ou ative o PRO.',err_invalid_code:'O código PRO não é válido. Verifique e tente novamente.',err_not_configured:'O consultor ainda não está configurado no servidor (falta a chave da API).',err_not_deployed:'O consultor funciona quando o app está publicado no Netlify. Abra a versão publicada.',err_upstream:'O mecanismo de consulta não respondeu. Tente novamente em alguns segundos.',err_bad_request:'A consulta é muito longa ou tem formato inválido.',err_expired_code:'Sua assinatura PRO venceu. Renove seu plano e o mesmo código será reativado.',err_pro_limit:'Você atingiu o limite de consultas do seu plano neste mês. A cota é renovada no dia 1.',
+    proTitle:'Licença PRO',proCopy:'Informe o código que você recebeu ao assinar.',proPlaceholder:'Código PRO (ex. NOVA-XXXX)',proSave:'Ativar',proRemove:'Remover código',proSaved:'Código salvo. Será validado na sua próxima consulta.',proRemoved:'Código removido.',
+    feedAsk:'Consultar novidades com IA',feedError:'Não foi possível carregar as atualizações normativas.',updatedAt:'Atualizado em'}
+};
+
+/* ---------- Planes y suscripción (editar aquí precios y enlace de pago) ---------- */
+const PLANS = {
+  currency: 'USD',
+  monthly: 19,            // precio mensual Ecuador (más IVA)
+  annual: 190,            // precio anual Ecuador (más IVA)
+  intlMonthly: 39,        // precio mensual internacional (PayPal, sin IVA)
+  intlAnnual: 390,        // precio anual internacional
+  ivaEcuador: 15,         // % de IVA para clientes de Ecuador (se suma al precio y se factura)
+  fairUse: 300,           // consultas incluidas por mes (debe coincidir con PRO_MONTHLY_LIMIT en Netlify)
+  whatsapp: '593993463014',              // WhatsApp para Ecuador (transferencia bancaria), formato internacional sin el 0
+  paypalEmail: 'ingmarcorivera@yahoo.es' // cuenta PayPal para pagos internacionales
+};
+const PLANS_UI = {
+  es:{kicker:'Suscripción mensual',title:'Un consultor NIIF a tu lado, todos los días',copy:'NOVA NIIF MASTER PRO funciona por suscripción porque cada consulta se resuelve en tiempo real con inteligencia artificial y, cuando hace falta, revisando en línea las fuentes normativas oficiales. No es un banco de respuestas fijas: razona tu caso.',
+    why:[['brain-circuit','Razona tu caso','Analiza los hechos, identifica la norma aplicable, calcula paso a paso y propone los asientos contables.'],['library-big','Fundamentado en la norma','Cada respuesta cita la NIIF o NIC y el párrafo, y consulta fuentes oficiales como la IFRS Foundation y las grandes firmas.'],['refresh-cw','Siempre al día','Las NIIF cambian cada año. El consultor revisa enmiendas y vigencias recientes antes de responder sobre novedades.']],
+    demoName:'DEMO',demoPrice:'Gratis',demoPer:'',demoFeat:['2 consultas técnicas con IA','2 aclaraciones por consulta','Examen de práctica de 5 casos','Panel de novedades NIIF'],demoCta:'Probar gratis',
+    monthName:'PRO Mensual',monthPer:'/ mes',monthFeat:['Hasta {fair} consultas al mes (incluye aclaraciones)','Ejercicios completos con cálculos y asientos','Aclaraciones sobre cada caso','Búsqueda de novedades en fuentes oficiales','Simulador de certificación','Español, inglés y portugués'],monthCta:'Suscribirme',popular:'Recomendado',
+    yearName:'PRO Anual',yearPer:'/ año',yearFeat:['Todo lo del plan mensual','Equivale a 2 meses gratis','Un solo pago al año'],yearCta:'Suscripción anual',
+    after:'Al confirmar tu pago recibes tu código PRO por WhatsApp. Actívalo en la sección Profesional.',
+    pay:{title:'Elige cómo pagar',plan:'Plan',ecTitle:'Ecuador · Transferencia bancaria',ecCopy:'Escríbenos por WhatsApp con tus datos de facturación: te enviamos los datos de la cuenta y, al recibir tu comprobante, te entregamos tu factura y tu código PRO.',sub:'Subtotal',iva:'IVA {iva}%',total:'Total a pagar',intNoIva:'Precio para clientes fuera de Ecuador, sin IVA.',ecBtn:'Pagar por WhatsApp',intTitle:'Internacional · PayPal',intCopy:'Paga con tu cuenta PayPal o tarjeta. Luego envíanos el comprobante por WhatsApp o al correo de PayPal para recibir tu código PRO.',intBtn:'Pagar con PayPal',note:'La activación se realiza dentro de las 24 horas siguientes a la confirmación del pago.',close:'Cerrar',waMsg:'Hola, quiero suscribirme a NOVA NIIF MASTER PRO, plan {plan}: {price} + IVA = {total}. ¿Me envían los datos para la transferencia bancaria?\n\nDatos para la factura:\n- RUC o cédula:\n- Nombre o razón social:\n- Dirección:\n- Correo electrónico:\n- Teléfono:',waContact:'Hola, tengo una consulta sobre NOVA NIIF MASTER PRO.',contact:'Contacto por WhatsApp',monthly:'Mensual',annual:'Anual'},
+    ivaNote:'Ecuador: {ec} + IVA {iva}% · Internacional: {intl}',
+    fine:'Precios en {cur}. Cada pregunta y cada aclaración cuentan como una consulta. En Ecuador se suma el IVA ({iva}%) y se emite factura electrónica. Uso justo: hasta {fair} consultas por mes por suscripción. Las respuestas son orientativas y no sustituyen el juicio profesional. Plataforma independiente, no afiliada a la IFRS Foundation ni a ACCA.'},
+  en:{kicker:'Monthly subscription',title:'An IFRS consultant at your side, every day',copy:'NOVA IFRS MASTER PRO works on a subscription because every consultation is solved in real time with artificial intelligence and, when needed, by checking official standard-setting sources online. It is not a bank of fixed answers: it reasons through your case.',
+    why:[['brain-circuit','Reasons through your case','Analyses the facts, identifies the applicable standard, calculates step by step and proposes journal entries.'],['library-big','Grounded in the standards','Each answer cites the IFRS or IAS and paragraph, and checks official sources such as the IFRS Foundation and major firms.'],['refresh-cw','Always current','IFRS change every year. The consultant checks recent amendments and effective dates before answering about updates.']],
+    demoName:'DEMO',demoPrice:'Free',demoPer:'',demoFeat:['2 AI technical consultations','2 clarifications per consultation','5-case practice exam','IFRS updates panel'],demoCta:'Try for free',
+    monthName:'PRO Monthly',monthPer:'/ month',monthFeat:['Up to {fair} consultations per month (clarifications included)','Full exercises with calculations and entries','Clarifications on each case','Updates search in official sources','Certification simulator','Spanish, English and Portuguese'],monthCta:'Subscribe',popular:'Recommended',
+    yearName:'PRO Annual',yearPer:'/ year',yearFeat:['Everything in the monthly plan','Equivalent to 2 months free','One payment per year'],yearCta:'Annual subscription',
+    after:'Once your payment is confirmed you receive your PRO code by WhatsApp. Activate it in the Professional section.',
+    pay:{title:'Choose how to pay',plan:'Plan',ecTitle:'Ecuador · Bank transfer',ecCopy:'Message us on WhatsApp with your billing details: we send you the account details and, once we receive your receipt, we deliver your invoice and PRO code.',sub:'Subtotal',iva:'VAT {iva}%',total:'Total to pay',intNoIva:'Price for customers outside Ecuador, without VAT.',ecBtn:'Pay via WhatsApp',intTitle:'International · PayPal',intCopy:'Pay with your PayPal account or card. Then send us the receipt by WhatsApp or to the PayPal email to receive your PRO code.',intBtn:'Pay with PayPal',note:'Activation is completed within 24 hours of payment confirmation.',close:'Close',waMsg:'Hello, I would like to subscribe to NOVA IFRS MASTER PRO, {plan} plan: {price} + VAT = {total}. Could you send me the bank transfer details?\n\nInvoice details:\n- RUC or ID number:\n- Name or company name:\n- Address:\n- Email:\n- Phone:',waContact:'Hello, I have a question about NOVA IFRS MASTER PRO.',contact:'WhatsApp contact',monthly:'Monthly',annual:'Annual'},
+    ivaNote:'International: {intl} · Ecuador: {ec} + {iva}% VAT',
+    fine:'Prices in {cur}. Each question and each clarification counts as one consultation. In Ecuador, {iva}% VAT is added and an electronic invoice is issued. Fair use: up to {fair} consultations per month per subscription. Answers are guidance and do not replace professional judgement. Independent platform, not affiliated with the IFRS Foundation or ACCA.'},
+  pt:{kicker:'Assinatura mensal',title:'Um consultor IFRS ao seu lado, todos os dias',copy:'NOVA IFRS MASTER PRO funciona por assinatura porque cada consulta é resolvida em tempo real com inteligência artificial e, quando necessário, consultando on-line as fontes normativas oficiais. Não é um banco de respostas prontas: analisa o seu caso.',
+    why:[['brain-circuit','Analisa o seu caso','Examina os fatos, identifica a norma aplicável, calcula passo a passo e propõe os lançamentos contábeis.'],['library-big','Fundamentado na norma','Cada resposta cita a IFRS ou IAS e o parágrafo, e consulta fontes oficiais como a IFRS Foundation e as grandes firmas.'],['refresh-cw','Sempre atualizado','As IFRS mudam todo ano. O consultor verifica alterações e vigências recentes antes de responder sobre novidades.']],
+    demoName:'DEMO',demoPrice:'Grátis',demoPer:'',demoFeat:['2 consultas técnicas com IA','2 esclarecimentos por consulta','Exame prático de 5 casos','Painel de novidades IFRS'],demoCta:'Testar grátis',
+    monthName:'PRO Mensal',monthPer:'/ mês',monthFeat:['Até {fair} consultas por mês (inclui esclarecimentos)','Exercícios completos com cálculos e lançamentos','Esclarecimentos sobre cada caso','Busca de novidades em fontes oficiais','Simulador de certificação','Espanhol, inglês e português'],monthCta:'Assinar',popular:'Recomendado',
+    yearName:'PRO Anual',yearPer:'/ ano',yearFeat:['Tudo do plano mensal','Equivale a 2 meses grátis','Um único pagamento por ano'],yearCta:'Assinatura anual',
+    after:'Ao confirmar seu pagamento você recebe seu código PRO pelo WhatsApp. Ative-o na seção Profissional.',
+    pay:{title:'Escolha como pagar',plan:'Plano',ecTitle:'Equador · Transferência bancária',ecCopy:'Fale conosco pelo WhatsApp com seus dados de faturamento: enviamos os dados da conta e, ao receber seu comprovante, entregamos sua fatura e seu código PRO.',sub:'Subtotal',iva:'IVA {iva}%',total:'Total a pagar',intNoIva:'Preço para clientes fora do Equador, sem IVA.',ecBtn:'Pagar pelo WhatsApp',intTitle:'Internacional · PayPal',intCopy:'Pague com sua conta PayPal ou cartão. Depois envie o comprovante pelo WhatsApp ou para o e-mail do PayPal para receber seu código PRO.',intBtn:'Pagar com PayPal',note:'A ativação é feita em até 24 horas após a confirmação do pagamento.',close:'Fechar',waMsg:'Olá, quero assinar o NOVA IFRS MASTER PRO, plano {plan}: {price} + IVA = {total}. Podem me enviar os dados para a transferência bancária?\n\nDados para a fatura:\n- RUC ou documento:\n- Nome ou razão social:\n- Endereço:\n- E-mail:\n- Telefone:',waContact:'Olá, tenho uma dúvida sobre o NOVA IFRS MASTER PRO.',contact:'Contato pelo WhatsApp',monthly:'Mensal',annual:'Anual'},
+    ivaNote:'Internacional: {intl} · Equador: {ec} + IVA {iva}%',
+    fine:'Preços em {cur}. Cada pergunta e cada esclarecimento contam como uma consulta. No Equador é acrescido o IVA ({iva}%) e emitida fatura eletrônica. Uso justo: até {fair} consultas por mês por assinatura. As respostas são orientativas e não substituem o julgamento profissional. Plataforma independente, não afiliada à IFRS Foundation nem à ACCA.'}
+};
+function fillPlan(str){ return String(str).replace('{fair}',PLANS.fairUse).replace('{cur}',PLANS.currency).replace('{iva}',PLANS.ivaEcuador); }
+function money2(n){ return '$'+Number(n).toFixed(2); }
+function goToPlans(){ document.getElementById('planes')?.scrollIntoView({behavior:'smooth',block:'start'}); }
+function waLink(text){ return `https://wa.me/${PLANS.whatsapp}?text=${encodeURIComponent(text)}`; }
+function paypalLink(plan){
+  const amount=plan==='anual'?PLANS.intlAnnual:PLANS.intlMonthly;
+  const item=`NOVA NIIF MASTER PRO - ${plan==='anual'?'Plan Anual':'Plan Mensual'}`;
+  return 'https://www.paypal.com/cgi-bin/webscr?'+new URLSearchParams({cmd:'_xclick',business:PLANS.paypalEmail,item_name:item,amount:String(amount),currency_code:PLANS.currency,no_shipping:'1'}).toString();
+}
+function subscribe(plan){
+  const P=(PLANS_UI[currentLang]||PLANS_UI.es).pay;
+  const amount=plan==='anual'?PLANS.annual:PLANS.monthly;
+  const planName=plan==='anual'?P.annual:P.monthly;
+  const price=`$${amount} ${PLANS.currency}`;
+  const iva=Math.round(amount*PLANS.ivaEcuador)/100, total=amount+iva;
+  const msg=P.waMsg.replace('{plan}',planName).replace('{price}',money2(amount)).replace('{total}',money2(total));
+  const breakdown=`<div class="mt-3 rounded-xl bg-white border border-emerald-200 text-sm divide-y divide-emerald-100"><div class="flex justify-between px-4 py-2"><span>${P.sub}</span><span class="font-bold">${money2(amount)}</span></div><div class="flex justify-between px-4 py-2"><span>${fillPlan(P.iva)}</span><span class="font-bold">${money2(iva)}</span></div><div class="flex justify-between px-4 py-2.5 font-black"><span>${P.total}</span><span>${money2(total)}</span></div></div>`;
+  closePayModal();
+  const m=document.createElement('div');
+  m.id='pay-modal'; m.className='fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-slate-950/70';
+  m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true');
+  m.onclick=e=>{ if(e.target===m) closePayModal(); };
+  m.innerHTML=`<div class="w-full max-w-lg bg-white text-slate-900 rounded-3xl p-6 sm:p-7 premium-shadow max-h-[90vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3"><div><h3 class="text-xl font-black">${P.title}</h3><p class="text-sm text-slate-500 mt-1">${P.plan} ${escapeHtml(planName)}</p></div><button type="button" onclick="closePayModal()" aria-label="${P.close}" class="w-9 h-9 rounded-full border border-slate-200 hover:bg-slate-50 flex items-center justify-center shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+    <div class="mt-5 space-y-3">
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5"><div class="font-black flex items-center gap-2"><i data-lucide="landmark" class="w-5 h-5 text-emerald-700"></i>${P.ecTitle}</div><p class="text-sm text-slate-600 mt-1.5 leading-relaxed">${P.ecCopy}</p>${breakdown}<a href="${waLink(msg)}" target="_blank" rel="noopener" class="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i>${P.ecBtn}</a></div>
+      <div class="rounded-2xl border border-blue-200 bg-blue-50/60 p-5"><div class="font-black flex items-center gap-2"><i data-lucide="globe-2" class="w-5 h-5 text-blue-700"></i>${P.intTitle}</div><p class="text-sm text-slate-600 mt-1.5 leading-relaxed">${P.intCopy}</p><p class="text-xs font-bold text-blue-800 mt-2">${P.intNoIva} ${money2(plan==='anual'?PLANS.intlAnnual:PLANS.intlMonthly)}</p><a href="${paypalLink(plan)}" target="_blank" rel="noopener" class="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm"><i data-lucide="credit-card" class="w-4 h-4"></i>${P.intBtn}</a></div>
+    </div>
+    <p class="text-xs text-slate-500 mt-4 leading-relaxed">${P.note}</p>
+  </div>`;
+  document.body.appendChild(m); icons();
+  document.addEventListener('keydown',escClosePay);
+}
+function escClosePay(e){ if(e.key==='Escape') closePayModal(); }
+function closePayModal(){ document.getElementById('pay-modal')?.remove(); document.removeEventListener('keydown',escClosePay); }
+function renderContact(){
+  const el=document.getElementById('footer-contact'); if(!el) return;
+  const P=(PLANS_UI[currentLang]||PLANS_UI.es).pay;
+  el.innerHTML=`<a href="${waLink(P.waContact)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold"><i data-lucide="message-circle" class="w-4 h-4"></i>${P.contact}: +593 99 346 3014</a>`;
+}
+function renderPlans(){
+  const el=document.getElementById('planes'); if(!el) return;
+  const P=PLANS_UI[currentLang]||PLANS_UI.es;
+  const li=items=>items.map(x=>`<li class="flex gap-2.5 items-start"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0 text-emerald-500"></i><span>${escapeHtml(fillPlan(x))}</span></li>`).join('');
+  const price=n=>`${PLANS.currency==='USD'?'$':''}${n}`;
+  el.innerHTML=`<div class="rounded-[2rem] overflow-hidden border border-white/10 premium-shadow bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
+    <div class="p-7 sm:p-9 lg:p-11">
+      <div class="max-w-3xl">
+        <span class="inline-flex items-center gap-2 text-[11px] sm:text-xs font-extrabold uppercase tracking-[.18em] text-emerald-200 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1.5 rounded-full"><i data-lucide="calendar-check" class="w-4 h-4"></i>${P.kicker}</span>
+        <h2 class="mt-4 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">${P.title}</h2>
+        <p class="mt-3 text-sm sm:text-base text-slate-300 leading-relaxed">${P.copy}</p>
+      </div>
+      <div class="mt-7 grid md:grid-cols-3 gap-3">${P.why.map(w=>`<div class="metric rounded-2xl border border-white/10 p-5"><div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-200 flex items-center justify-center"><i data-lucide="${w[0]}" class="w-5 h-5"></i></div><div class="font-black mt-3">${w[1]}</div><p class="text-sm text-slate-300 mt-1.5 leading-relaxed">${w[2]}</p></div>`).join('')}</div>
+      <div class="mt-8 grid lg:grid-cols-3 gap-4 items-stretch">
+        <div class="rounded-2xl bg-white text-slate-900 p-6 flex flex-col border border-slate-200">
+          <div class="font-black text-lg">${P.demoName}</div>
+          <div class="mt-2 text-3xl font-black">${P.demoPrice}</div>
+          <ul class="mt-5 space-y-2 text-sm text-slate-700 flex-1">${li(P.demoFeat)}</ul>
+          <button onclick="startDemoExam()" class="mt-6 w-full px-5 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 font-black text-sm">${P.demoCta}</button>
+        </div>
+        <div class="rounded-2xl bg-white text-slate-900 p-6 flex flex-col ring-4 ring-emerald-400 relative">
+          <span class="absolute -top-3 left-6 bg-emerald-400 text-slate-950 text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full">${P.popular}</span>
+          <div class="font-black text-lg">${P.monthName}</div>
+          <div class="mt-2 flex items-end gap-1.5"><span class="text-4xl font-black">${price(currentLang==='es'?PLANS.monthly:PLANS.intlMonthly)}</span><span class="text-sm text-slate-500 font-bold mb-1.5">${P.monthPer}</span></div><div class="text-xs font-bold text-slate-500 mt-1">${fillPlan(P.ivaNote).replace('{ec}',price(PLANS.monthly)).replace('{intl}',price(PLANS.intlMonthly))}</div>
+          <ul class="mt-5 space-y-2 text-sm text-slate-700 flex-1">${li(P.monthFeat)}</ul>
+          <button onclick="subscribe('mensual')" class="mt-6 w-full px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm">${P.monthCta}</button>
+        </div>
+        <div class="rounded-2xl bg-white text-slate-900 p-6 flex flex-col border border-slate-200">
+          <div class="font-black text-lg">${P.yearName}</div>
+          <div class="mt-2 flex items-end gap-1.5"><span class="text-4xl font-black">${price(currentLang==='es'?PLANS.annual:PLANS.intlAnnual)}</span><span class="text-sm text-slate-500 font-bold mb-1.5">${P.yearPer}</span></div><div class="text-xs font-bold text-slate-500 mt-1">${fillPlan(P.ivaNote).replace('{ec}',price(PLANS.annual)).replace('{intl}',price(PLANS.intlAnnual))}</div>
+          <ul class="mt-5 space-y-2 text-sm text-slate-700 flex-1">${li(P.yearFeat)}</ul>
+          <button onclick="subscribe('anual')" class="mt-6 w-full px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-sm">${P.yearCta}</button>
+        </div>
+      </div>
+      <p class="mt-6 text-sm text-slate-200 font-bold flex items-center gap-2"><i data-lucide="key-round" class="w-4 h-4 text-emerald-300"></i>${P.after}</p>
+      <p class="mt-2 text-xs text-slate-400 leading-relaxed">${escapeHtml(fillPlan(P.fine))}</p>
+    </div>
+  </div>`;
+  icons();
+}
+
+const DEMO_LIMIT = 2;
+const PASS_MARK = 70;
+
+function store(key, value){ try{ if(value===undefined) return localStorage.getItem(key); if(value===null) localStorage.removeItem(key); else localStorage.setItem(key, value); }catch(e){ return null; } }
+
+let currentLang = store('novaLang') || 'es';
+if(!APP[currentLang]) currentLang = 'es';
+let examOrder = [];
+let optionOrder = {};
+let activeQuestions = [];
+let currentQuestionIdx = 0;
+let userAnswers = {};
+let isGraded = false;
+let timerSec = 600;
+let timerRef = null;
+let currentEnvironment = 'certificacion';
+let demoExamMode = false;
+let UPDATES = null;
+let consultMessages = [];
+let consultSources = [];
+let consultBusy = false;
+let consultError = '';
+
+function t(){ return APP[currentLang]; }
+function C(){ return CONSULT_UI[currentLang]; }
+function setText(id, value){ const el=document.getElementById(id); if(el) el.textContent=value; }
+function icons(){ if(window.lucide && lucide.createIcons) lucide.createIcons(); }
+function escapeHtml(value){ return String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+
+/* ---------- Idioma ---------- */
+function applyLanguage(){
+  const L=t();
+  document.documentElement.lang=currentLang==='pt'?'pt-BR':currentLang;
+  document.title=`NOVA ${L.brand}`;
+  setText('brand-title',L.brand); setText('global-badge',L.badge); setText('brand-subtitle',L.subtitle); setText('online-label',L.online);
+  setText('tab-demo',L.tabs.demo); setText('tab-exam',L.tabs.exam); setText('tab-pro',L.tabs.pro);
+  setText('hero-kicker',L.hero.kicker); setText('hero-title',L.hero.title); setText('hero-copy',L.hero.copy); setText('hero-start',L.hero.start); setText('hero-demo',L.hero.demo); setText('hero-plans',L.hero.plans);
+  ['metric-1','metric-2','metric-3','metric-4'].forEach((id,i)=>setText(id,L.metrics[i]));
+  setText('demo-badge',L.demo.badge); setText('demo-limit',L.demo.limit); setText('demo-title',L.demo.title); setText('demo-copy',L.demo.copy);
+  setText('demo-card1-title',L.demo.c1t); setText('demo-card1-copy',L.demo.c1c); setText('demo-card2-title',L.demo.c2t); setText('demo-card2-copy',L.demo.c2c); setText('demo-card3-title',L.demo.c3t); setText('demo-card3-copy',L.demo.c3c); setText('demo-try-exam',L.demo.tryExam); setText('demo-try-pro',L.demo.tryPro);
+  setText('exam-title',L.exam.title); setText('exam-subtitle',L.exam.subtitle); setText('time-label',L.exam.time); setText('new-test-label',L.exam.newTest);
+  setText('pro-badge',L.pro.badge); setText('pro-title',L.pro.title); setText('pro-copy',L.pro.copy); setText('consult-title',L.pro.consultTitle); setText('consult-subtitle',L.pro.consultSubtitle); setText('consult-button',L.pro.button);
+  const U=C();
+  setText('consult-label',U.label); setText('consult-helper',U.helper); setText('consult-clear',U.clear); setText('quick-label',U.quick);
+  setText('quick-1',U.q1); setText('quick-2',U.q2); setText('quick-3',U.q3);
+  setText('pro-lic-title',U.proTitle); setText('pro-lic-copy',U.proCopy); setText('pro-save',U.proSave); setText('pro-remove',U.proRemove);
+  const codeInput=document.getElementById('pro-code-input'); if(codeInput){ codeInput.placeholder=U.proPlaceholder; }
+  const consultInput=document.getElementById('consult-input'); if(consultInput) consultInput.placeholder=U.placeholder;
+  updateConsultCharCount();
+  setText('footer-brand',`NOVA ${L.brand}`); setText('footer-copy',L.footer.copy); setText('footer-global',L.footer.global); setText('footer-disclaimer',L.footer.disclaimer);
+  ['es','en','pt'].forEach(code=>{ const b=document.getElementById('lang-'+code); if(b) b.className= code===currentLang ? 'lang-btn px-4 sm:px-5 py-3 rounded-xl text-sm sm:text-base font-black bg-white text-slate-950 shadow-lg' : 'lang-btn px-4 sm:px-5 py-3 rounded-xl text-sm sm:text-base font-black text-slate-300 hover:text-white'; });
+  renderNormativeFeed();
+  renderPlans();
+  renderContact();
+  renderConsultation();
+  updateConsultCounter();
+  refreshQuestions();
+  renderExamUI();
+  icons();
+}
+function setLanguage(lang){ if(!APP[lang]) return; currentLang=lang; store('novaLang',lang); applyLanguage(); }
+
+function setEnvironment(env){
+  currentEnvironment=env;
+  document.getElementById('env-demo').classList.toggle('hidden',env!=='demo');
+  document.getElementById('env-certificacion').classList.toggle('hidden',env!=='certificacion');
+  document.getElementById('env-profesional').classList.toggle('hidden',env!=='profesional');
+  const inactive='nav-pill px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-black flex items-center gap-2 text-slate-300 hover:text-white whitespace-nowrap';
+  const active='nav-pill px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-black flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-950/30 whitespace-nowrap';
+  document.getElementById('mode-btn-demo').className=env==='demo'?active:inactive;
+  document.getElementById('mode-btn-cert').className=env==='certificacion'?active:inactive;
+  document.getElementById('mode-btn-pro').className=env==='profesional'?active:inactive;
+  icons();
+}
+
+/* ---------- Examen ---------- */
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function getQuestion(id){ return t().questions.find(q=>q.id===id); }
+function refreshQuestions(){ activeQuestions=examOrder.map(getQuestion).filter(Boolean); }
+function displayOptions(q){ return (optionOrder[q.id]||q.options.map(o=>o[0])).map((orig,i)=>({letter:'ABCDEF'[i],orig,text:(q.options.find(o=>o[0]===orig)||['',''])[1]})); }
+function letterOf(q,orig){ const order=optionOrder[q.id]||[]; const i=order.indexOf(orig); return i<0?'-':'ABCDEF'[i]; }
+function textOf(q,orig){ const o=q.options.find(x=>x[0]===orig); return o?o[1]:''; }
+
+function startDemoExam(){ demoExamMode=true; setEnvironment('certificacion'); startNewRandomExam(true); }
+function startNewRandomExam(isDemo=demoExamMode){
+  demoExamMode=isDemo;
+  const qs=t().questions;
+  examOrder=shuffle(qs.map(q=>q.id));
+  optionOrder={}; qs.forEach(q=>{ optionOrder[q.id]=shuffle(q.options.map(o=>o[0])); });
+  refreshQuestions();
+  currentQuestionIdx=0; userAnswers={}; isGraded=false; timerSec=600;
+  clearInterval(timerRef); updateTimer();
+  timerRef=setInterval(()=>{ if(timerSec<=0){ clearInterval(timerRef); gradeExam(); return; } timerSec--; updateTimer(); },1000);
+  renderExamUI();
+}
+function updateTimer(){ const m=Math.floor(timerSec/60), s=timerSec%60; const el=document.getElementById('exam-timer'); if(el) el.innerText=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+
+function renderExamUI(){
+  const L=t().exam, container=document.getElementById('exam-content-area'); if(!container||!activeQuestions.length) return;
+  if(isGraded){ renderGradingReport(); return; }
+  const q=activeQuestions[currentQuestionIdx], selected=userAnswers[q.id], answered=Object.keys(userAnswers).length;
+  container.innerHTML=`<div class="space-y-5"><div class="flex items-center justify-between text-sm text-slate-500 border-b border-slate-100 pb-3"><span>${L.item} ${currentQuestionIdx+1} ${L.of} ${activeQuestions.length} · ${L.completed}: ${answered}/${activeQuestions.length}</span><span class="font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-bold">${q.standard}</span></div><p class="text-slate-800 font-semibold text-base sm:text-lg leading-relaxed">${q.question}</p><div class="space-y-2.5 pt-1">${displayOptions(q).map(o=>{const sel=selected===o.orig;return `<button onclick="selectOption(${q.id},'${o.orig}')" class="w-full text-left p-4 rounded-xl border text-sm sm:text-base flex items-center transition ${sel?'border-blue-600 bg-blue-50/80 font-bold text-blue-900 ring-1 ring-blue-600':'border-slate-200 hover:bg-slate-50 text-slate-700'}"><span class="w-8 h-8 rounded-full border ${sel?'border-blue-600 bg-blue-600 text-white':'border-slate-300 text-slate-500'} flex items-center justify-center font-bold text-sm mr-3 shrink-0">${o.letter}</span><span>${o.text}</span></button>`}).join('')}</div><div class="flex justify-between items-center pt-5 border-t border-slate-100"><button onclick="navQuestion(-1)" ${currentQuestionIdx===0?'disabled':''} class="px-5 py-3 text-sm font-bold rounded-xl border border-slate-200 disabled:opacity-30 hover:bg-slate-50">${L.prev}</button>${currentQuestionIdx===activeQuestions.length-1?`<button onclick="gradeExam()" class="px-6 py-3 text-sm font-black rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm inline-flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i>${L.finish}</button>`:`<button onclick="navQuestion(1)" class="px-6 py-3 text-sm font-bold rounded-xl bg-slate-900 text-white hover:bg-slate-800">${L.next}</button>`}</div></div>`;
+  icons();
+}
+function selectOption(id,key){ if(isGraded) return; userAnswers[id]=key; renderExamUI(); }
+function navQuestion(dir){ currentQuestionIdx=Math.max(0,Math.min(activeQuestions.length-1,currentQuestionIdx+dir)); renderExamUI(); }
+function gradeExam(){ clearInterval(timerRef); isGraded=true; renderGradingReport(); }
+function renderGradingReport(){
+  const L=t().exam, score=activeQuestions.reduce((n,q)=>n+(userAnswers[q.id]===q.correct?1:0),0), percent=Math.round(score/activeQuestions.length*100), passed=percent>=PASS_MARK;
+  document.getElementById('exam-content-area').innerHTML=`<div class="space-y-6"><div class="p-7 rounded-2xl border text-center ${passed?'bg-emerald-50 border-emerald-200':'bg-amber-50 border-amber-200'}"><div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 ${passed?'bg-emerald-100 text-emerald-600':'bg-amber-100 text-amber-600'}"><i data-lucide="${passed?'award':'refresh-ccw'}" class="w-8 h-8"></i></div><h3 class="text-xl sm:text-2xl font-black ${passed?'text-emerald-950':'text-amber-950'}">${passed?L.passed:L.failed}</h3><p class="text-sm sm:text-base mt-2 max-w-2xl mx-auto ${passed?'text-emerald-800':'text-amber-800'}">${passed?L.passedText:L.failedText}</p><div class="mt-5 inline-flex items-center gap-6 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm text-sm"><div><span class="text-[10px] text-slate-400 block font-bold uppercase">${L.score}</span><span class="text-xl font-black ${passed?'text-emerald-600':'text-amber-600'}">${percent}%</span></div><div class="w-px h-8 bg-slate-200"></div><div><span class="text-[10px] text-slate-400 block font-bold uppercase">${L.hits}</span><span class="text-lg font-bold text-slate-800">${score}/${activeQuestions.length}</span></div><div class="w-px h-8 bg-slate-200"></div><div><span class="text-[10px] text-slate-400 block font-bold uppercase">${L.minimum}</span><span class="text-lg font-bold text-slate-600">${PASS_MARK}%</span></div></div><div class="mt-5"><button onclick="startNewRandomExam(false)" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold inline-flex items-center gap-2"><i data-lucide="play" class="w-4 h-4"></i>${L.retry}</button></div></div><div class="space-y-3"><h4 class="font-black text-slate-900 text-base flex items-center gap-2 border-b pb-3"><i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i>${L.feedback}</h4>${activeQuestions.map((q,i)=>{const key=userAnswers[q.id], ok=key===q.correct; return `<div class="p-5 rounded-xl border ${ok?'border-emerald-200 bg-emerald-50/20':'border-rose-200 bg-rose-50/20'} space-y-2"><div class="flex items-center justify-between gap-3"><span class="font-bold text-slate-700">${L.case} ${i+1}: ${q.topic}</span><span class="px-2 py-1 rounded font-bold text-xs ${ok?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">${ok?'✓ '+L.correct:'✗ '+L.incorrect}</span></div><p class="text-sm text-slate-800">${q.question}</p><div class="text-sm"><span class="${ok?'text-emerald-700':'text-rose-700'} font-bold">${L.yourChoice}: ${key?`(${letterOf(q,key)}) ${textOf(q,key)}`:L.unanswered}</span>${!ok?`<br><span class="text-emerald-700 font-bold">${L.official}: (${letterOf(q,q.correct)}) ${textOf(q,q.correct)}</span>`:''}</div><div class="bg-white p-4 rounded-lg border border-slate-200 text-sm text-slate-600"><div class="font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>${L.basis}: ${q.reference}</div><p class="mt-1">${q.explanation}</p></div></div>`}).join('')}</div></div>`;
+  icons();
+}
+
+/* ---------- Actualizaciones normativas (updates.json) ---------- */
+async function loadUpdates(){
+  try{
+    const res=await fetch('updates.json',{cache:'no-cache'});
+    if(!res.ok) throw new Error(res.status);
+    UPDATES=await res.json();
+  }catch(e){ UPDATES={error:true}; }
+  renderNormativeFeed();
+}
+function renderNormativeFeed(){
+  const L=t(), U=C(), c=document.getElementById('normative-feed-container'); if(!c) return;
+  if(!UPDATES){ c.innerHTML=''; return; }
+  const items=(UPDATES.items||[]).map(it=>({...it,...(it[currentLang]||it.es||{})}));
+  const header=`<div class="flex flex-wrap items-center justify-between gap-3"><span class="text-xs font-bold text-slate-300">${UPDATES.updated?`${U.updatedAt} ${escapeHtml(UPDATES.updated)}`:''}</span><button type="button" onclick="askAboutUpdates()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-black inline-flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4"></i>${U.feedAsk}</button></div>`;
+  if(UPDATES.error||!items.length){ c.innerHTML=header+`<div class="bg-white p-5 rounded-2xl border border-slate-200 text-sm text-slate-600">${U.feedError}</div>`; icons(); return; }
+  c.innerHTML=header+`<div class="grid md:grid-cols-2 gap-4">`+items.map(u=>`<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col"><div class="flex items-center justify-between gap-2"><span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 text-blue-700 font-mono">${escapeHtml(standardLabel(u.standard))}</span><span class="text-xs text-slate-400 font-medium">${escapeHtml(u.category||'')}</span></div><h4 class="font-black text-slate-900 text-lg">${escapeHtml(u.title)}</h4><p class="text-sm text-slate-600 leading-relaxed flex-1">${escapeHtml(u.summary)}</p><div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-sm"><span class="text-slate-500 font-medium">${L.pro.effective}: ${escapeHtml(u.effective)}</span>${u.source?`<a href="${escapeHtml(u.source)}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 font-bold inline-flex items-center gap-1"><span>${L.pro.source}</span><i data-lucide="external-link" class="w-4 h-4"></i></a>`:''}</div></div>`).join('')+`</div>`;
+  icons();
+}
+function askAboutUpdates(){ fillPrompt(C().q1p); }
+function standardLabel(label){
+  if(currentLang==='es') return label;
+  const map={en:{'NIIF para las PYMES':'IFRS for SMEs','Mejoras anuales':'Annual Improvements'},pt:{'NIIF para las PYMES':'IFRS para PMEs','Mejoras anuales':'Melhorias Anuais'}}[currentLang]||{};
+  return map[label]||String(label).replace(/NIIF/g,'IFRS').replace(/NIC/g,'IAS');
+}
+
+/* ---------- Markdown seguro para las respuestas ---------- */
+function mdInline(s){
+  return s.replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+const MD_TABLE=/^\s*\|.*\|\s*$/, MD_HEAD=/^(#{1,6})\s+(.*)$/, MD_UL=/^\s*[-*•]\s+/, MD_OL=/^\s*\d+[.)]\s+/, MD_HR=/^\s*(-{3,}|\*{3,}|_{3,})\s*$/, MD_QUOTE=/^\s*&gt;\s?/;
+function mdBlockStart(l){ return MD_TABLE.test(l)||MD_HEAD.test(l)||MD_UL.test(l)||MD_OL.test(l)||MD_HR.test(l)||MD_QUOTE.test(l); }
+function renderMarkdown(src){
+  const lines=escapeHtml(src||'').split(/\r?\n/); let html='', i=0;
+  const cells=r=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(x=>x.trim());
+  while(i<lines.length){
+    const line=lines[i]; let m;
+    if(!line.trim()){ i++; continue; }
+    if(MD_TABLE.test(line)){
+      const rows=[]; while(i<lines.length&&MD_TABLE.test(lines[i])){ rows.push(lines[i]); i++; }
+      let head=null, body=rows;
+      if(rows.length>1&&/^[\s|:\-]+$/.test(rows[1])){ head=cells(rows[0]); body=rows.slice(2); }
+      html+='<div class="md-table"><table>'+(head?'<thead><tr>'+head.map(x=>`<th>${mdInline(x)}</th>`).join('')+'</tr></thead>':'')+'<tbody>'+body.map(r=>'<tr>'+cells(r).map(x=>`<td>${mdInline(x)}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>';
+      continue;
+    }
+    if((m=line.match(MD_HEAD))){ const lvl=Math.min(5,m[1].length+2); html+=`<h${lvl}>${mdInline(m[2])}</h${lvl}>`; i++; continue; }
+    if(MD_HR.test(line)){ html+='<hr>'; i++; continue; }
+    if(MD_UL.test(line)){ html+='<ul>'; while(i<lines.length&&MD_UL.test(lines[i])){ html+='<li>'+mdInline(lines[i].replace(MD_UL,''))+'</li>'; i++; } html+='</ul>'; continue; }
+    if(MD_OL.test(line)){ const start=parseInt(line,10)||1; html+=`<ol start="${start}">`; while(i<lines.length&&MD_OL.test(lines[i])){ html+='<li>'+mdInline(lines[i].replace(MD_OL,''))+'</li>'; i++; } html+='</ol>'; continue; }
+    if(MD_QUOTE.test(line)){ const q=[]; while(i<lines.length&&MD_QUOTE.test(lines[i])){ q.push(lines[i].replace(MD_QUOTE,'')); i++; } html+='<blockquote>'+mdInline(q.join('<br>'))+'</blockquote>'; continue; }
+    const para=[line]; i++;
+    while(i<lines.length&&lines[i].trim()&&!mdBlockStart(lines[i])){ para.push(lines[i]); i++; }
+    html+='<p>'+mdInline(para.join('<br>'))+'</p>';
+  }
+  return html;
+}
+
+/* ---------- Consultor con IA ---------- */
+function getProCode(){ return store('novaProCode')||''; }
+function getDemoRemaining(){ const v=store('novaDemoRemaining'); return v===null||v===undefined?DEMO_LIMIT:Math.max(0,Number(v)); }
+function updateConsultCounter(){
+  const U=C(), el=document.getElementById('consult-counter'); if(!el) return;
+  el.innerHTML=getProCode()?`<span class="text-emerald-700">● ${U.proActive}${store('novaProRemaining')!==null&&store('novaProRemaining')!==undefined?` · ${U.proLeft}: ${store('novaProRemaining')}`:''}</span>`:`${U.remaining}: ${getDemoRemaining()}/${DEMO_LIMIT}`;
+  const status=document.getElementById('pro-status'); const input=document.getElementById('pro-code-input');
+  if(input&&document.activeElement!==input) input.value=getProCode();
+  if(status&&!status.dataset.msg) status.textContent='';
+}
+function saveProCode(){
+  const U=C(), input=document.getElementById('pro-code-input'), status=document.getElementById('pro-status'); if(!input) return;
+  const code=input.value.trim(); if(!code){ input.focus(); return; }
+  store('novaProCode',code); store('novaProRemaining',null); if(status){ status.textContent=U.proSaved; status.dataset.msg='1'; }
+  updateConsultCounter();
+}
+function removeProCode(){
+  const U=C(), status=document.getElementById('pro-status'), input=document.getElementById('pro-code-input');
+  store('novaProCode',null); store('novaProRemaining',null); if(input) input.value=''; if(status){ status.textContent=U.proRemoved; status.dataset.msg='1'; }
+  updateConsultCounter();
+}
+function updateConsultCharCount(){ const el=document.getElementById('consult-input'), out=document.getElementById('consult-char-count'); if(!el||!out) return; out.textContent=`${el.value.length} / 4000`; }
+function clearConsultation(){ const el=document.getElementById('consult-input'); if(!el) return; el.value=''; updateConsultCharCount(); el.focus(); }
+function fillPrompt(text){ setEnvironment('profesional'); const el=document.getElementById('consult-input'); if(!el) return; el.value=text; updateConsultCharCount(); el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+function quickPrompt(n){ fillPrompt(C()['q'+n+'p']); }
+
+async function callConsultor(messages){
+  const headers={'content-type':'application/json'}; const code=getProCode(); if(code) headers['x-nova-pro']=code;
+  let res;
+  try{ res=await fetch('/api/consultor',{method:'POST',headers,body:JSON.stringify({messages,lang:currentLang})}); }
+  catch(e){ return {ok:false,error:'not_deployed'}; }
+  if(res.status===404) return {ok:false,error:'not_deployed'};
+  const txt=await res.text();
+  try{ return JSON.parse(txt); }catch(e){ return {ok:false,error:'upstream'}; }
+}
+function handleConsultResult(data){
+  if(data&&data.ok){
+    consultMessages.push({role:'assistant',content:data.answer});
+    consultSources.push(Array.isArray(data.sources)?data.sources:[]);
+    if(typeof data.remaining==='number') store(data.pro?'novaProRemaining':'novaDemoRemaining',String(data.remaining));
+    consultError='';
+    return true;
+  }
+  const err=(data&&data.error)||'upstream';
+  if(err==='demo_limit') store('novaDemoRemaining','0');
+  if(err==='invalid_code'){ store('novaProCode',null); store('novaProRemaining',null); }
+  if(err==='pro_limit') store('novaProRemaining','0');
+  consultError=err;
+  return false;
+}
+async function runConsultation(){
+  if(consultBusy) return;
+  const input=document.getElementById('consult-input');
+  const q=(input&&input.value.trim())||''; if(!q){ input?.focus(); return; }
+  consultMessages=[{role:'user',content:q}]; consultSources=[]; consultError='';
+  consultBusy=true; renderConsultation();
+  document.getElementById('consult-output')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const data=await callConsultor(consultMessages);
+  consultBusy=false;
+  if(!handleConsultResult(data)) consultMessages=[];
+  updateConsultCounter(); renderConsultation();
+}
+async function runConsultationFollowup(){
+  if(consultBusy||!consultMessages.length) return;
+  const input=document.getElementById('consult-followup');
+  const q=(input&&input.value.trim())||''; if(!q){ input?.focus(); return; }
+  const before=consultMessages.slice();
+  consultMessages.push({role:'user',content:q}); consultError='';
+  consultBusy=true; renderConsultation();
+  const data=await callConsultor(consultMessages);
+  consultBusy=false;
+  if(!handleConsultResult(data)) consultMessages=before;
+  updateConsultCounter(); renderConsultation();
+  if(!consultError){ const f=document.getElementById('consult-followup'); if(f) f.value=''; } else { const f=document.getElementById('consult-followup'); if(f) f.value=q; }
+}
+function newConsultation(){ consultMessages=[]; consultSources=[]; consultError=''; renderConsultation(); clearConsultation(); }
+function renderConsultation(){
+  const out=document.getElementById('consult-output'); if(!out) return;
+  const U=C(), L=t().pro, isPro=!!getProCode();
+  let html='';
+  let a=0;
+  consultMessages.forEach((m,idx)=>{
+    if(m.role==='user'){
+      html+=`<div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs font-black uppercase tracking-wide text-slate-500 mb-1">${idx===0?U.you:U.followupYou}</div><div class="text-sm text-slate-800 whitespace-pre-wrap">${escapeHtml(m.content)}</div></div>`;
+    } else {
+      const src=consultSources[a++]||[];
+      html+=`<div class="rounded-xl border border-blue-200 bg-white p-5"><div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-extrabold uppercase tracking-wide mb-3"><i data-lucide="message-square-text" class="w-4 h-4"></i><span>${L.responseLabel||U.answer}</span></div><div class="md-answer">${renderMarkdown(m.content)}</div>${src.length?`<div class="mt-4 pt-3 border-t border-slate-100"><div class="text-xs font-black uppercase tracking-wide text-slate-500 mb-2">${U.sources}</div><ul class="space-y-1 text-sm">${src.map(s=>`<li><a class="text-blue-600 hover:text-blue-800 underline" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title||s.url)}</a></li>`).join('')}</ul></div>`:''}</div>`;
+    }
+  });
+  if(consultBusy){
+    html+=`<div class="rounded-xl border border-slate-200 bg-white p-5 flex items-start gap-3"><span class="mt-1 w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin shrink-0"></span><div><div class="font-black text-slate-800">${U.thinking}</div><div class="text-xs text-slate-500 mt-1">${U.thinkingNote}</div></div></div>`;
+  }
+  if(consultError){
+    const plansBtn=(consultError==='demo_limit'||consultError==='followup_limit'||consultError==='pro_limit'||consultError==='expired_code')?`<button type="button" onclick="goToPlans()" class="mt-3 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black">${t().hero.plans}</button>`:'';
+    html+=`<div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold">${U['err_'+consultError]||U.err_upstream}${plansBtn?'<div>'+plansBtn+'</div>':''}</div>`;
+  }
+  const hasAnswer=consultMessages.some(m=>m.role==='assistant');
+  if(hasAnswer&&!consultBusy){
+    html+=`<div class="pt-2 space-y-2"><div class="flex items-center justify-between gap-3 flex-wrap"><label for="consult-followup" class="text-sm font-black text-slate-800">${U.followupLabel}</label><span class="text-xs font-bold text-emerald-700">${isPro?U.followupNotePro:U.followupNoteDemo}</span></div><textarea id="consult-followup" rows="3" maxlength="4000" class="consult-textarea w-full min-h-[96px] resize-y text-sm leading-6 px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600" placeholder="${U.followupPlaceholder}"></textarea><div class="flex justify-between gap-2 flex-wrap"><button type="button" onclick="newConsultation()" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-black rounded-xl inline-flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>${U.newConsult}</button><button type="button" onclick="runConsultationFollowup()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-black rounded-xl inline-flex items-center gap-2 transition"><i data-lucide="corner-down-right" class="w-4 h-4"></i>${U.followupButton}</button></div></div>`;
+  }
+  out.innerHTML=html;
+  out.classList.toggle('hidden',!html);
+  const btn=document.getElementById('consult-run'); if(btn){ btn.disabled=consultBusy; btn.classList.toggle('opacity-60',consultBusy); }
+  icons();
+}
+
+/* ---------- PWA ---------- */
+function registerPWA(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').then(reg=>{ reg.update().catch(()=>{}); }).catch(()=>{});
+  const hadController=!!navigator.serviceWorker.controller; let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!hadController||reloaded) return; reloaded=true; window.location.reload(); });
+}
+function initApp(){
+  try{ startNewRandomExam(false); }catch(e){ console.error(e); }
+  try{ applyLanguage(); }catch(e){ console.error(e); }
+  const startEnv={'#profesional':'profesional','#consultor':'profesional','#demo':'demo','#examen':'certificacion','#planes':'certificacion'}[location.hash]||'certificacion';
+  setEnvironment(startEnv);
+  if(location.hash==='#planes') setTimeout(goToPlans,300);
+  loadUpdates();
+  registerPWA();
+}
+window.addEventListener('load',initApp);
+</script>
+</body>
+</html>

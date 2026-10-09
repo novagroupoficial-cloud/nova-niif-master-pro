@@ -1,0 +1,40 @@
+# NOVA NIIF MASTER PRO — configuración de Netlify
+# public/              → páginas que ve el usuario (lo único que se publica)
+# netlify/functions/   → consultor con IA y panel de códigos (se ejecutan en el servidor)
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+  command = "echo 'Sitio estático: no requiere compilación'"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/updates.json"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/app.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+    X-Robots-Tag = "noindex, nofollow"
